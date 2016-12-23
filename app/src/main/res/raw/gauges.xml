@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<gauges>
+    <calc_eng_load>
+        <radius>400</radius>
+        <border_width>0.05</border_width>
+        <start_value>0</start_value>
+        <start_angle>0</start_angle>
+        <stop_value>100</stop_value>
+        <stop_angle>180</stop_angle>
+        <major_incr>20</major_incr>
+        <dec_places>0</dec_places>
+        <major_len>0.18</major_len>
+        <major_thick>0.02</major_thick>
+        <minor_incr>10</minor_incr>
+        <minor_len>0.1</minor_len>
+        <minor_thick>0.01</minor_thick>
+    </calc_eng_load>
+
+
+</gauges>
