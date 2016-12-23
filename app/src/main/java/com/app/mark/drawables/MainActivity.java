@@ -7,11 +7,15 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.os.CountDownTimer;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.UUID;
@@ -83,8 +87,7 @@ public class MainActivity extends Activity {
 
         alertDialog.setSingleChoiceItems(adapter, -1, new DialogInterface.OnClickListener() {
             @Override
-            public void onClick(DialogInterface dialog, int which)
-            {
+            public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
                 int position = ((AlertDialog) dialog).getListView().getCheckedItemPosition();
                 String deviceAddress = (String) devices.get(position);
@@ -100,21 +103,52 @@ public class MainActivity extends Activity {
 
                 UUID uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
-                try{
+                try {
                     BluetoothSocket socket = device.createInsecureRfcommSocketToServiceRecord(uuid);
                     socket.connect();
-                }
-                catch (Throwable e) {
+
+                    final InputStream inStream = socket.getInputStream();
+                    OutputStream outStream = socket.getOutputStream();
+
+                    String resetStr = "atz\r\n";
+
+                    byte[] out = resetStr.getBytes();
+
+                    outStream.write(out);
+
+                    new CountDownTimer(30000, 1000) {
+
+                        public void onTick(long millisUntilFinished) {
+                            try {
+
+                                byte[] inBytes = new byte[25];
+                                inStream.read(inBytes, 0, inStream.available());
+
+                                String inString = new String(inBytes, "UTF-8");
+
+
+                                Log.d("Bluetooth Rx:", inString + "& "+ millisUntilFinished / 1000);
+                            } catch (Throwable e) {
+                                e.printStackTrace();
+                            }
+
+                        }
+
+                        public void onFinish() {
+
+                        }
+                    }.start();
+
+
+                } catch (Throwable e) {
                     e.printStackTrace();
                 }
-            }
-
 
             }
         });
-
         alertDialog.setTitle("Choose Bluetooth device");
         alertDialog.show();
+
 
 
 
