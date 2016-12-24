@@ -26,6 +26,9 @@ public class MainActivity extends Activity {
     private DrawableSurfaceView.DrawableThread mDrawableThread;
     private DrawableSurfaceView mDrawableSurfaceView;
 
+    private ELM327.ELMThread mELMThread;
+    private ELM327 mELM327;
+
     Button mAddGaugeButton;
 
     @Override
@@ -36,6 +39,10 @@ public class MainActivity extends Activity {
 
         // get handles to the LunarView from XML, and its LunarThread
         mDrawableSurfaceView = (DrawableSurfaceView) findViewById(R.id.lunar);
+
+        mELM327 = new ELM327();
+
+        mELMThread = mELM327.getThread();
 
         mDrawableThread = mDrawableSurfaceView.getThread();
         if (savedInstanceState == null) {
@@ -91,58 +98,12 @@ public class MainActivity extends Activity {
                 dialog.dismiss();
                 int position = ((AlertDialog) dialog).getListView().getCheckedItemPosition();
                 String deviceAddress = (String) devices.get(position);
-                // TODO save deviceAddress
-                Log.d("BLUETOOTH:", "device address: " + deviceAddress);
+                mELMThread.connect(deviceAddress);
+                mELMThread.setRunning(true);
+                mELMThread.run();
 
 
-                // More bluetooth!!
 
-                BluetoothAdapter btAdapter = BluetoothAdapter.getDefaultAdapter();
-
-                BluetoothDevice device = btAdapter.getRemoteDevice(deviceAddress);
-
-                UUID uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
-
-                try {
-                    BluetoothSocket socket = device.createInsecureRfcommSocketToServiceRecord(uuid);
-                    socket.connect();
-
-                    final InputStream inStream = socket.getInputStream();
-                    OutputStream outStream = socket.getOutputStream();
-
-                    String resetStr = "atz\r\n";
-
-                    byte[] out = resetStr.getBytes();
-
-                    outStream.write(out);
-
-                    new CountDownTimer(30000, 1000) {
-
-                        public void onTick(long millisUntilFinished) {
-                            try {
-
-                                byte[] inBytes = new byte[25];
-                                inStream.read(inBytes, 0, inStream.available());
-
-                                String inString = new String(inBytes, "UTF-8");
-
-
-                                Log.d("Bluetooth Rx:", inString + "& "+ millisUntilFinished / 1000);
-                            } catch (Throwable e) {
-                                e.printStackTrace();
-                            }
-
-                        }
-
-                        public void onFinish() {
-
-                        }
-                    }.start();
-
-
-                } catch (Throwable e) {
-                    e.printStackTrace();
-                }
 
             }
         });

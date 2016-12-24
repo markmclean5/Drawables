@@ -260,12 +260,6 @@ class DrawableSurfaceView extends SurfaceView implements SurfaceHolder.Callback 
 
             mLastTime = currTime;
         }
-
-        public void setGaugeVal(String ident, float val) {
-            synchronized (mSurfaceHolder) {
-                //gauge1.setValue(ident, val);
-            }
-        }
     }
     /** The thread that actually draws the animation */
     private DrawableThread thread;
