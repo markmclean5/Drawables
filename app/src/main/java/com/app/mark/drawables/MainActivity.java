@@ -4,22 +4,14 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothSocket;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.os.CountDownTimer;
-import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Set;
-import java.util.UUID;
-
 
 public class MainActivity extends Activity {
 
@@ -55,23 +47,8 @@ public class MainActivity extends Activity {
             Log.w(this.getClass().getName(), "SIS is nonnull");
         }
         mDrawableThread.doStart();
-        //mDrawableThread.setGaugeVal("test", (float)76.1);
-
-        mAddGaugeButton = new Button(this);
-
-        mAddGaugeButton = (Button) findViewById(R.id.button);
-
-        mAddGaugeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mDrawableThread.addGauge("calc_eng_load");
-                mDrawableThread.updateGauge("calc_eng_load", (float)100.1);
-            }
-        });
-
 
         // Bluetooth!!
-
         ArrayList deviceStrs = new ArrayList();
         final ArrayList devices = new ArrayList();
 
@@ -100,7 +77,7 @@ public class MainActivity extends Activity {
                 String deviceAddress = (String) devices.get(position);
                 mELMThread.connect(deviceAddress);
                 mELMThread.setRunning(true);
-                mELMThread.run();
+                mELMThread.start();
 
 
 
@@ -109,6 +86,18 @@ public class MainActivity extends Activity {
         });
         alertDialog.setTitle("Choose Bluetooth device");
         alertDialog.show();
+
+        mAddGaugeButton = new Button(this);
+
+        mAddGaugeButton = (Button) findViewById(R.id.button);
+
+        mAddGaugeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mDrawableThread.addGauge("calc_eng_load");
+                mDrawableThread.updateGauge("calc_eng_load", (float)100.1);
+            }
+        });
 
 
 

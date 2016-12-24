@@ -5,12 +5,15 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.os.CountDownTimer;
+import android.os.SystemClock;
 import android.util.AttributeSet;
 import android.util.Log;
 
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.UUID;
+
+import static android.os.SystemClock.currentThreadTimeMillis;
 
 /**
  * Created by mark on 12/22/2016.
@@ -40,6 +43,7 @@ public class ELM327 {
 
         String mRXbuffer;
 
+        long mThreadLoopStartTime;
 
         Request mDataRequest;
 
@@ -173,6 +177,7 @@ public class ELM327 {
                     if (mRun) {
                         // Run thread logic
                         //Log.d("ELMThread", "if mRun");
+
                         if(mDataRequest == Request.READY) {
                             reset();
                             setProtoAuto();
@@ -180,6 +185,14 @@ public class ELM327 {
                             mDataRequest = Request.NOT_READY;
                             displayProto();
                         }
+                        while(true) {
+                            long start = SystemClock.currentThreadTimeMillis();
+                            requestMode1("01");
+                            long end = SystemClock.currentThreadTimeMillis();
+
+                            Log.d("ELMThread", "loop complete " + (end - start));
+                        }
+
 
                     }
                 }
