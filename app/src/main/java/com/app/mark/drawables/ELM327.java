@@ -28,6 +28,10 @@ public class ELM327 {
     public enum Request {
         NOT_READY, READY, WAITING
     }
+
+    Context mContext;
+
+
     public class ELMThread extends Thread {
 
         private boolean mRun = false;
@@ -41,14 +45,13 @@ public class ELM327 {
         InputStream mBTinStream;
         OutputStream mBToutStream;
 
+
+
         String mRXbuffer;
-
-        long mThreadLoopStartTime;
-
         Request mDataRequest;
 
         // ELMThread Constructor
-        public void ELMThread() {
+        public void ELMThread(Context context) {
             Log.d("ELMThread", "called thread constructor");
             mBTconn = Connection.DISCONNECTED;
             mECUconn = Connection.DISCONNECTED;
@@ -184,13 +187,15 @@ public class ELM327 {
                             requestMode1("01");
                             mDataRequest = Request.NOT_READY;
                             displayProto();
+
+                            PID Pid0100 = new PID(mContext, "0100");
                         }
                         while(true) {
                             long start = SystemClock.currentThreadTimeMillis();
-                            requestMode1("01");
+                            //requestMode1("01");
                             long end = SystemClock.currentThreadTimeMillis();
 
-                            Log.d("ELMThread", "loop complete " + (end - start));
+                            //Log.d("ELMThread", "loop complete " + (end - start));
                         }
 
 
@@ -218,7 +223,8 @@ public class ELM327 {
     private ELMThread thread;
 
     // ELM327 Constructor
-    public ELM327() {
+    public ELM327(Context context) {
+        mContext = context;
         thread = new ELMThread();
     }
 

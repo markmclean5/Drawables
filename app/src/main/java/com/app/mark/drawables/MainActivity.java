@@ -32,7 +32,7 @@ public class MainActivity extends Activity {
         // get handles to the LunarView from XML, and its LunarThread
         mDrawableSurfaceView = (DrawableSurfaceView) findViewById(R.id.lunar);
 
-        mELM327 = new ELM327();
+        mELM327 = new ELM327(this);
 
         mELMThread = mELM327.getThread();
 
@@ -98,9 +98,6 @@ public class MainActivity extends Activity {
                 mDrawableThread.updateGauge("calc_eng_load", (float)100.1);
             }
         });
-
-
-
 
     }
 
