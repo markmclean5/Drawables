@@ -9,26 +9,24 @@ import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
 import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
-import java.util.StringTokenizer;
+
 
 public class PID {
     public enum PIDType{
-        SUPPORT, PARAMETER
+        UNK, SUPPORT, PARAMETER
     }
     private enum ElementType {
         NONE, BOOLEAN, VALUE, ENUM, SPARE
     }
     Context mContext;
+
+    PIDType mType = PIDType.UNK;
     String mIdent;
     String mName = "unnamed";// ex "00"
     int mNumBytes;           // ex - 2
@@ -36,7 +34,6 @@ public class PID {
     String mCommand;         // ex - "1" (only use first reply)
 
     int mNumElements;
-
     // Container for all elements within PID
     List<Element> ElementList;
 
@@ -108,7 +105,7 @@ public class PID {
                     // handle end tags - populate values
                     case XmlPullParser.END_TAG:
                         if(parsing) {
-                            // stop parsing if end tag is desired identifier otherwise parse all
+                            // stop parsing if end tag is desired identifier otherwise parse all properties
                             if (tagname.equalsIgnoreCase(pidIdent)) {
                                 parsing = false;
                                 break;
@@ -118,13 +115,21 @@ public class PID {
                                 mNumBytes = Integer.parseInt(text);
                             } else if (tagname.equalsIgnoreCase("num_elements")) {
                                 mNumElements = Integer.parseInt(text);
+                            } else if(tagname.equalsIgnoreCase("type")) {
+                                if(text.equalsIgnoreCase("support"))
+                                    mType = PIDType.SUPPORT;
+                                else if(text.equalsIgnoreCase("parameter")){
+                                    mType = PIDType.PARAMETER;
+                                }
                             } else if(parsingElement) {
                                 // Parse element
                                 if (tagname.equalsIgnoreCase("element" + currentElement)) {
-                                    // done parsing current element, add to list
-
-                                    Log.d("PID", "adding element to PID");
-                                    ElementList.add(el);
+                                    // done parsing current element, add to list if it validates
+                                    if(el.validate()) {
+                                        Log.d("PID", "adding element to PID");
+                                        ElementList.add(el);
+                                    }
+                                    // move to next element
                                     parsingElement = false;
                                     currentElement++;
                                 }
@@ -139,14 +144,24 @@ public class PID {
                                         el.mType = ElementType.SPARE;
                                     }
                                 } else if (el.mType == ElementType.BOOLEAN) {
+                                    // boolean type element basic setup
+                                    el.mBitLength = 1;
+                                    el.mNumStates = 2;
+                                    el.mEnumStates = new String[2];
+                                    el.mEnumStates[0] = "false";
+                                    el.mEnumStates[1] = "true";
+                                    //
                                     if (tagname.equalsIgnoreCase("position")) {
                                         el.mStartPosition = text;
                                     } else if(tagname.equalsIgnoreCase("short_name")) {
                                         el.mShortName = text;
+                                    } else if(tagname.equalsIgnoreCase("description")) {
+                                        el.mDescription = text;
+                                    } else if(tagname.equalsIgnoreCase("long_name")) {
+                                        el.mLongName = text;
                                     }
                                 }
                             }
-
                         }
                         break;
 
@@ -161,53 +176,105 @@ public class PID {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
         return success;
-
-
-
-
     }
+    /*  ------------------------------
+        PID::Element class definition
+        An Element is a piece of data within a PID
+            - Boolean
+            - Value
+            - Enumeration
+            - Spare
+        ------------------------------ */
     private class Element {
-        // Element class definition - piece of data within a PID
+        // Element properties - applicable to all types of elements
         ElementType mType;
         String mStartPosition;          // ex - B7
         int mBitLength;
         String mShortName;
-        String mLongName;
-        String mDescription;
+        String mLongName = "";
+        String mDescription = "";
 
-        // Enum & Boolean
+        // Enum & Boolean properties
         int mNumStates;
         String[] mEnumStates;
         int[] mEnumVals;
-        int mEnumElementVal;
+        int mElementVal;
 
-        // Value
+        // Value properties
         float mValueElementValue;
         String mUnits;
 
+
+        // Element constructor
         public Element() {
             mType = ElementType.NONE;
         }
 
 
+        // Element update method - accepts payload from response message
         public void update(String data) {
             // Update element with data string
+            int byteNumber = (int)mStartPosition.charAt(0) - 65;    // 'A'->0...
+            if(byteNumber >= mNumBytes || byteNumber < 0)
+                Log.d("PID Element Update", "Error: boolean - invalid start byte position");
+            int bitNumber = (int)mStartPosition.charAt(1) - 48;     // '0'->0
+            if(bitNumber > 7 || bitNumber < 0) {
+                Log.d("PID Element Update", "Error: boolean - invalid start bit position");
+            }
             switch (mType) {
                 case BOOLEAN: {
                     // Update boolean type
+
+                    break;
                 }
                 case VALUE: {
                     // Update value type
+                    break;
                 }
                 case ENUM: {
                     // Update enumeration type
+                    break;
                 }
                 case SPARE: {
                     // Do nothing
+                    break;
                 }
             }
+        }
+
+        public boolean validate() {
+            // determine if element is properly configured & parsed, safe for usage
+            boolean valid = false;
+            switch (mType) {
+                case BOOLEAN: {
+                    // Validate boolean type
+                    if(!mStartPosition.isEmpty() && !mShortName.isEmpty())
+                        // long name and description are optional at the moment
+                        valid = true;
+                    break;
+                }
+                case VALUE: {
+                    // TODO: Add value type validation logic
+                    valid = true;
+                    break;
+                }
+                case ENUM: {
+                    // TODO: Add enumeration type validation logic
+                    valid = true;
+                    break;
+                }
+                case SPARE: {
+                    // Validate spare type (always valid)
+                    valid = true;
+                    break;
+                }
+            }
+            if(!valid) {
+                // error case - element did not validate
+                Log.d("PID Element", "Error - PID Element failed validation");
+            }
+            return valid;
         }
     }
 }
