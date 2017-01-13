@@ -47,10 +47,33 @@ public class PID {
         parsePID();
     }
 
-    public void update(String data) {
-        // Update all elements within the PID
-        for (Element E : ElementList) {
-            E.update(data);
+    public void update(String response) {
+        // validate data string - ensure it is a good response
+        // Strip all whitespace
+        response.replaceAll("\\s+","");
+        boolean validResponse = true;
+        String modeResp = "4" + mMode.substring(1);
+        String data = "";
+        if(!response.startsWith(mMode + mCommand + modeResp + mCommand)){
+            Log.d("PID", "Error - update response unexpected chars");
+            validResponse = false;
+        }
+        else {
+            int dataStartPos = 2*(mMode.length() + mCommand.length());
+            data = response.substring(dataStartPos-1);
+            if(data.length() < mNumBytes*2) {
+                Log.d("PID", "Error - update response too short");
+                validResponse = false;
+            }
+        }
+        if(validResponse) {
+            // specify format and convert to integer
+            String hexStringData = "0X" + data;
+            int intData = Integer.decode(hexStringData);
+            // Update all elements within the PID
+            for (Element E : ElementList) {
+                E.update(intData);
+            }
         }
     }
 
@@ -150,6 +173,7 @@ public class PID {
                                     el.mEnumStates = new String[2];
                                     el.mEnumStates[0] = "false";
                                     el.mEnumStates[1] = "true";
+                                    el.mBitLength = 1;
                                     //
                                     if (tagname.equalsIgnoreCase("position")) {
                                         el.mStartPosition = text;
@@ -213,8 +237,8 @@ public class PID {
 
 
         // Element update method - accepts payload from response message
-        public void update(String data) {
-            // Update element with data string
+        public void update(int data) {
+            // Locate appropriate region of data
             int byteNumber = (int)mStartPosition.charAt(0) - 65;    // 'A'->0...
             if(byteNumber >= mNumBytes || byteNumber < 0)
                 Log.d("PID Element Update", "Error: boolean - invalid start byte position");
@@ -222,6 +246,9 @@ public class PID {
             if(bitNumber > 7 || bitNumber < 0) {
                 Log.d("PID Element Update", "Error: boolean - invalid start bit position");
             }
+            // going to right shift this much
+            int startBit = 8*byteNumber + bitNumber - mBitLength;
+
             switch (mType) {
                 case BOOLEAN: {
                     // Update boolean type
