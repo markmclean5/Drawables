@@ -189,6 +189,10 @@ public class ELM327 {
                             displayProto();
 
                             PID Pid0100 = new PID(mContext, "0100");
+
+                            Pid0100.update("01 00 41 00 00 00 80 80");
+
+                            Log.d("ELM327", "PID update completed");
                         }
                         while(true) {
                             long start = SystemClock.currentThreadTimeMillis();

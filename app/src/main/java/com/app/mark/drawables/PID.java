@@ -50,11 +50,14 @@ public class PID {
     public void update(String response) {
         // validate data string - ensure it is a good response
         // Strip all whitespace
-        response.replaceAll("\\s+","");
+        response = response.replaceAll("\\s+","");
         boolean validResponse = true;
         String modeResp = "4" + mMode.substring(1);
         String data = "";
-        if(!response.startsWith(mMode + mCommand + modeResp + mCommand)){
+        String expectedResp = mMode + mCommand + modeResp + mCommand;
+        Log.d("PID", "update with: " + response);
+        Log.d("PID", "update expected: "+ expectedResp);
+        if(!response.startsWith(expectedResp)){
             Log.d("PID", "Error - update response unexpected chars");
             validResponse = false;
         }
@@ -117,6 +120,7 @@ public class PID {
                             currentElement = 1;
                             Log.d("PID", "found start tag");
                         } else if(tagname.equalsIgnoreCase("element" + currentElement)) {
+                            Log.d("PID", "element start tag encountered " + tagname);
                             parsingElement = true;
                             el = new Element();
                         }
@@ -127,27 +131,38 @@ public class PID {
                         break;
                     // handle end tags - populate values
                     case XmlPullParser.END_TAG:
+                        Log.d("PID", "End tag: " + tagname);
                         if(parsing) {
-                            // stop parsing if end tag is desired identifier otherwise parse all properties
-                            if (tagname.equalsIgnoreCase(pidIdent)) {
-                                parsing = false;
-                                break;
-                            } else if (tagname.equalsIgnoreCase("name")) {
-                                mName = text;
-                            } else if (tagname.equalsIgnoreCase("num_bytes")) {
-                                mNumBytes = Integer.parseInt(text);
-                            } else if (tagname.equalsIgnoreCase("num_elements")) {
-                                mNumElements = Integer.parseInt(text);
-                            } else if(tagname.equalsIgnoreCase("type")) {
-                                if(text.equalsIgnoreCase("support"))
-                                    mType = PIDType.SUPPORT;
-                                else if(text.equalsIgnoreCase("parameter")){
-                                    mType = PIDType.PARAMETER;
+
+                            if(!parsingElement) {
+                                // stop parsing if end tag is desired identifier otherwise parse all PID properties
+                                if (tagname.equalsIgnoreCase(pidIdent)) {
+                                    parsing = false;
+                                    break;
+                                } else if (tagname.equalsIgnoreCase("name")) {
+                                    mName = text;
+                                } else if (tagname.equalsIgnoreCase("num_bytes")) {
+                                    mNumBytes = Integer.parseInt(text);
+                                } else if (tagname.equalsIgnoreCase("num_elements")) {
+                                    mNumElements = Integer.parseInt(text);
+                                } else if(tagname.equalsIgnoreCase("type")) {
+                                    if(text.equalsIgnoreCase("support"))
+                                        mType = PIDType.SUPPORT;
+                                    else if(text.equalsIgnoreCase("parameter")){
+                                        mType = PIDType.PARAMETER;
+                                    }
+                                } else if(tagname.equalsIgnoreCase("mode")) {
+                                    mMode = text;
+                                } else if(tagname.equalsIgnoreCase("command")) {
+                                    mCommand = text;
                                 }
-                            } else if(parsingElement) {
-                                // Parse element
+
+                            }
+                            else if(parsingElement) {
+                                // Parse element properties
                                 if (tagname.equalsIgnoreCase("element" + currentElement)) {
                                     // done parsing current element, add to list if it validates
+                                    Log.d("PID", "short_name" + el.mShortName);
                                     if(el.validate()) {
                                         Log.d("PID", "adding element to PID");
                                         ElementList.add(el);
@@ -157,6 +172,7 @@ public class PID {
                                     currentElement++;
                                 }
                                 else if(tagname.equalsIgnoreCase("type")) {
+                                    Log.d("PID", "Element type " + text);
                                     if(text.equalsIgnoreCase("boolean")) {
                                         el.mType = ElementType.BOOLEAN;
                                     } else if(text.equalsIgnoreCase("value")) {
@@ -220,6 +236,7 @@ public class PID {
         String mDescription = "";
 
         // Enum & Boolean properties
+        boolean mBoolState = false;
         int mNumStates;
         String[] mEnumStates;
         int[] mEnumVals;
@@ -235,7 +252,6 @@ public class PID {
             mType = ElementType.NONE;
         }
 
-
         // Element update method - accepts payload from response message
         public void update(int data) {
             // Locate appropriate region of data
@@ -247,11 +263,22 @@ public class PID {
                 Log.d("PID Element Update", "Error: boolean - invalid start bit position");
             }
             // going to right shift this much
-            int startBit = 8*byteNumber + bitNumber - mBitLength;
+            int startBit = 8*(byteNumber) + (7 - bitNumber) + mBitLength;
+            data = data >> 8*(mNumBytes) - startBit;
+            int mask = (1 << mBitLength) - 1;
+            data &= mask;
 
             switch (mType) {
                 case BOOLEAN: {
-                    // Update boolean type
+                    // Update boolean type - nonzero data -> true
+                    if(data != 0){
+                        mBoolState = true;
+                        Log.d("PID", "Element " + mStartPosition + "set to true ***********");
+                    }
+
+                    else {
+                        mBoolState = false;
+                    }
 
                     break;
                 }
@@ -265,6 +292,10 @@ public class PID {
                 }
                 case SPARE: {
                     // Do nothing
+                    break;
+                }
+                default: {
+                    Log.d ("PID", "Type update error");
                     break;
                 }
             }
