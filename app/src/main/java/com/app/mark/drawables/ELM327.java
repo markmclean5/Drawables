@@ -65,7 +65,6 @@ public class ELM327 {
             if(mBTconn == Connection.CONNECTED) {
                 // Append with CR + NL
                 Data += "\r\n";
-                Log.d("ELMThread", "send " + Data);
                 try {
                     mBToutStream.write(Data.getBytes());
                 }
@@ -94,6 +93,7 @@ public class ELM327 {
                             //Log.d("ELMThread", "receive" + In );
                             Data += In;
                             if(Data.indexOf('>') != -1) {
+                                Data = Data.replace(">", "");
                                 complete = true;
                             }
                         }
@@ -154,17 +154,13 @@ public class ELM327 {
         }
         public void displayProto() {
             String cmd = "atdp";
-            Log.d("ELMThread", "Display Proto Requested data " + cmd);
             send(cmd);
             String resp = receive();
-            Log.d("ELMThread", "Display Proto Received data "+ resp);
         }
-        public void requestMode1(String PID) {
-            String cmd = "01" + PID + "1";
-            Log.d("ELMThread", "Display Proto Requested data " + cmd);
-            send(cmd);
+        public String request(String PID) {
+            send(PID);
             String resp = receive();
-            Log.d("ELMThread", "Display Proto Received data "+ resp);
+            return resp;
         }
 
 
@@ -184,15 +180,49 @@ public class ELM327 {
                         if(mDataRequest == Request.READY) {
                             reset();
                             setProtoAuto();
-                            requestMode1("01");
+                            request("0100");
                             mDataRequest = Request.NOT_READY;
                             displayProto();
 
                             PID Pid0100 = new PID(mContext, "0100");
+                            String data = request(Pid0100.getCommand());
+                            Pid0100.update(data);
+                            Pid0100.printData();
 
-                            Pid0100.update("01 00 41 00 00 00 80 80");
+                            PID Pid0120 = new PID(mContext, "0120");
+                            data = request(Pid0120.getCommand());
+                            Pid0120.update(data);
+                            Pid0120.printData();
+
+                            PID Pid0140 = new PID(mContext, "0140");
+                            data = request(Pid0140.getCommand());
+                            Pid0140.update(data);
+                            Pid0140.printData();
+
+
+                            PID Pid0101 = new PID(mContext, "0101");
+                            data = request(Pid0101.getCommand());
+                            Pid0101.update(data);
+                            Pid0101.printData();
+
+                            PID Pid0103 = new PID(mContext, "0103");
+                            data = request(Pid0103.getCommand());
+                            Pid0103.update(data);
+                            Pid0103.printData();
+
+                            PID Pid0104 = new PID(mContext, "0104");
+                            data = request(Pid0104.getCommand());
+                            Pid0104.update(data);
+                            Pid0104.printData();
+
+                            PID Pid0105 = new PID(mContext, "0105");
+                            data = request(Pid0105.getCommand());
+                            Pid0105.update(data);
+                            Pid0105.printData();
+
 
                             Log.d("ELM327", "PID update completed");
+
                         }
                         while(true) {
                             long start = SystemClock.currentThreadTimeMillis();

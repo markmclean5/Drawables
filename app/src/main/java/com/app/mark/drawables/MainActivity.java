@@ -79,9 +79,6 @@ public class MainActivity extends Activity {
                 mELMThread.setRunning(true);
                 mELMThread.start();
 
-
-
-
             }
         });
         alertDialog.setTitle("Choose Bluetooth device");

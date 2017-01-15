@@ -18,15 +18,16 @@ import java.util.List;
 
 
 public class PID {
-    public enum PIDType{
+    private enum PIDType{
         UNK, SUPPORT, PARAMETER
     }
     private enum ElementType {
         NONE, BOOLEAN, VALUE, ENUM, SPARE
     }
-    Context mContext;
+    private Context mContext;
 
     PIDType mType = PIDType.UNK;
+
     String mIdent;
     String mName = "unnamed";// ex "00"
     int mNumBytes;           // ex - 2
@@ -40,11 +41,45 @@ public class PID {
 
     public PID(Context context, String ident) {
         // PID constructor
-        Log.d("PID", "constructor");
         mContext = context;
         mIdent = ident;
         ElementList = new ArrayList<Element>();
         parsePID();
+    }
+
+    public void printData() {
+        if(mType == PIDType.SUPPORT) {
+            // Support type PID - print out which elements are supported
+            Log.d ("PID", "Support Type PID printout - Supported PIDs are:");
+            for(Element E : ElementList) {
+                if(E.mType == ElementType.BOOLEAN && E.mBoolState == true) {
+                    Log.d("PID", "    " + E.mShortName + " - " + E.mLongName);
+                }
+            }
+        }
+        else if(mType == PIDType.PARAMETER) {
+            Log.d ("PID", "Parameter Type PID printout " + mMode + mCommand + " - " + mName + ":");
+            for(Element E : ElementList) {
+                if(E.mType == ElementType.BOOLEAN) {
+                    Log.d("PID", "    " + E.mShortName + " - " + E.mLongName + ": " + E.mBoolState);
+                }
+                else if(E.mType == ElementType.VALUE) {
+                    Log.d("PID", "    "+ E.mShortName + " - " + E.mLongName + ": " + E.mValueElementValue + " (" + E.mValueUnits + ")");
+                }
+                else if(E.mType == ElementType.ENUM) {
+                    Log.d("PID", "    "+ E.mShortName + " - " + E.mLongName + ": " + E.mEnumCurrentState);
+                }
+            }
+        }
+
+    }
+
+
+
+
+    public String getCommand() {
+        String command = mMode + mCommand;
+        return command;
     }
 
     public void update(String response) {
@@ -55,8 +90,6 @@ public class PID {
         String modeResp = "4" + mMode.substring(1);
         String data = "";
         String expectedResp = mMode + mCommand + modeResp + mCommand;
-        Log.d("PID", "update with: " + response);
-        Log.d("PID", "update expected: "+ expectedResp);
         if(!response.startsWith(expectedResp)){
             Log.d("PID", "Error - update response unexpected chars");
             validResponse = false;
@@ -71,20 +104,18 @@ public class PID {
         }
         if(validResponse) {
             // specify format and convert to integer
-            String hexStringData = "0X" + data;
-            int intData = Integer.decode(hexStringData);
+            data = data.trim();
+            String hexStringData = "0x0" + data;
+            Long longData = Long.decode(hexStringData);
             // Update all elements within the PID
             for (Element E : ElementList) {
-                E.update(intData);
+                E.update(longData);
             }
         }
     }
 
     private boolean parsePID() {
         // Parse PID contents from PIDConf xml using identifier
-
-        Log.d("PID", "parse");
-
         XmlPullParserFactory factory = null;
         XmlPullParser parser = null;
         String text = "";
@@ -118,9 +149,7 @@ public class PID {
                             // start parsing pid if start tag is desired identifier
                             parsing = true;
                             currentElement = 1;
-                            Log.d("PID", "found start tag");
                         } else if(tagname.equalsIgnoreCase("element" + currentElement)) {
-                            Log.d("PID", "element start tag encountered " + tagname);
                             parsingElement = true;
                             el = new Element();
                         }
@@ -131,7 +160,6 @@ public class PID {
                         break;
                     // handle end tags - populate values
                     case XmlPullParser.END_TAG:
-                        Log.d("PID", "End tag: " + tagname);
                         if(parsing) {
 
                             if(!parsingElement) {
@@ -162,19 +190,24 @@ public class PID {
                                 // Parse element properties
                                 if (tagname.equalsIgnoreCase("element" + currentElement)) {
                                     // done parsing current element, add to list if it validates
-                                    Log.d("PID", "short_name" + el.mShortName);
                                     if(el.validate()) {
-                                        Log.d("PID", "adding element to PID");
                                         ElementList.add(el);
                                     }
                                     // move to next element
                                     parsingElement = false;
                                     currentElement++;
-                                }
-                                else if(tagname.equalsIgnoreCase("type")) {
-                                    Log.d("PID", "Element type " + text);
+                                } else if(tagname.equalsIgnoreCase("type")) {
+                                    // parse PID type
                                     if(text.equalsIgnoreCase("boolean")) {
                                         el.mType = ElementType.BOOLEAN;
+                                        // boolean type element basic setup
+                                        el.mBitLength = 1;
+                                        el.mNumStates = 2;
+                                        el.mEnumStates = new String[2];
+                                        el.mEnumStates[0] = "false";
+                                        el.mEnumStates[1] = "true";
+                                        el.mBitLength = 1;
+
                                     } else if(text.equalsIgnoreCase("value")) {
                                         el.mType = ElementType.VALUE;
                                     } else if(text.equalsIgnoreCase("enum")) {
@@ -182,25 +215,49 @@ public class PID {
                                     } else if(text.equalsIgnoreCase("spare")) {
                                         el.mType = ElementType.SPARE;
                                     }
-                                } else if (el.mType == ElementType.BOOLEAN) {
-                                    // boolean type element basic setup
-                                    el.mBitLength = 1;
-                                    el.mNumStates = 2;
-                                    el.mEnumStates = new String[2];
-                                    el.mEnumStates[0] = "false";
-                                    el.mEnumStates[1] = "true";
-                                    el.mBitLength = 1;
-                                    //
-                                    if (tagname.equalsIgnoreCase("position")) {
-                                        el.mStartPosition = text;
-                                    } else if(tagname.equalsIgnoreCase("short_name")) {
-                                        el.mShortName = text;
-                                    } else if(tagname.equalsIgnoreCase("description")) {
-                                        el.mDescription = text;
-                                    } else if(tagname.equalsIgnoreCase("long_name")) {
-                                        el.mLongName = text;
+                                } else if (tagname.equalsIgnoreCase("position")) {
+                                    el.mStartPosition = text;
+                                } else if (tagname.equalsIgnoreCase("num_bits")) {
+                                    el.mBitLength = Integer.parseInt(text);
+                                } else if(tagname.equalsIgnoreCase("short_name")) {
+                                    el.mShortName = text;
+                                } else if(tagname.equalsIgnoreCase("long_name")) {
+                                    el.mLongName = text;
+                                } else if (el.mType == ElementType.VALUE) {
+                                    // Value type element parsing
+                                    if(tagname.equalsIgnoreCase("min")) {
+                                        el.mValueMin = Float.parseFloat(text);
+                                    } else if(tagname.equalsIgnoreCase("max")) {
+                                        el.mValueMax = Float.parseFloat(text);
+                                    } else if(tagname.equalsIgnoreCase("units")) {
+                                        el.mValueUnits = text;
+                                    } else if(tagname.equalsIgnoreCase("scaling")) {
+                                        el.mValueScaling = Float.parseFloat(text);
+                                    } else if(tagname.equalsIgnoreCase("offset")) {
+                                        el.mValueOffset = Float.parseFloat(text);
+                                    }
+                                } else if(el.mType == ElementType.ENUM) {
+                                    // Enumerated type element parsing
+                                    if(tagname.equalsIgnoreCase("num_states")) {
+                                        el.mNumStates = Integer.parseInt(text);
+                                        el.mEnumVals = new int[el.mNumStates];
+                                        // One more state than values for invalid case
+                                        el.mEnumStates = new String[el.mNumStates + 1];
+                                        el.mParsedStates = 0;
+                                    } else if (el.mParsedStates < el.mNumStates) {
+                                        // parse state value and state strings
+                                        if(tagname.equalsIgnoreCase("enum_" + (el.mParsedStates + 1) + "_value")) {
+                                            el.mEnumVals[el.mParsedStates] = Integer.parseInt(text);
+                                        } else if(tagname.equalsIgnoreCase("enum_" + (el.mParsedStates + 1) + "_state")) {
+                                            el.mEnumStates[el.mParsedStates] = text;
+                                            el.mParsedStates++;
+                                        }
+                                    } else if(tagname.equalsIgnoreCase("enum_invalid_state")) {
+                                        // Invalid state string stored in last position of array
+                                        el.mEnumStates[el.mNumStates] = text;
                                     }
                                 }
+
                             }
                         }
                         break;
@@ -238,13 +295,21 @@ public class PID {
         // Enum & Boolean properties
         boolean mBoolState = false;
         int mNumStates;
+        int mParsedStates;
         String[] mEnumStates;
         int[] mEnumVals;
-        int mElementVal;
+        int mEnumCurrentVal;
+        String mEnumCurrentState;
 
         // Value properties
         float mValueElementValue;
-        String mUnits;
+        float mValueMin;
+        float mValueMax;
+        String mValueUnits;
+        float mValueScaling;
+        float mValueOffset;
+        boolean mValueInRange;
+
 
 
         // Element constructor
@@ -252,8 +317,8 @@ public class PID {
             mType = ElementType.NONE;
         }
 
-        // Element update method - accepts payload from response message
-        public void update(int data) {
+            // Element update method - accepts payload from response message
+        public void update(Long data) {
             // Locate appropriate region of data
             int byteNumber = (int)mStartPosition.charAt(0) - 65;    // 'A'->0...
             if(byteNumber >= mNumBytes || byteNumber < 0)
@@ -267,27 +332,39 @@ public class PID {
             data = data >> 8*(mNumBytes) - startBit;
             int mask = (1 << mBitLength) - 1;
             data &= mask;
-
             switch (mType) {
                 case BOOLEAN: {
                     // Update boolean type - nonzero data -> true
                     if(data != 0){
                         mBoolState = true;
-                        Log.d("PID", "Element " + mStartPosition + "set to true ***********");
                     }
-
                     else {
                         mBoolState = false;
                     }
-
                     break;
                 }
                 case VALUE: {
                     // Update value type
+                    mValueElementValue = mValueScaling*data + mValueOffset;
+                    if(mValueElementValue > mValueMax || mValueElementValue < mValueMin) {
+                        mValueInRange = false;
+                        Log.d("PID", "Error - element update value element out of range");
+                    }
+                    else
+                        mValueInRange = true;
                     break;
                 }
                 case ENUM: {
                     // Update enumeration type
+                    mEnumCurrentVal = data.intValue();
+                    // default to invalid
+                    mEnumCurrentState = mEnumStates[mNumStates];
+                    for(int V : mEnumVals) {
+                        if(V == mEnumCurrentVal) {
+                            mEnumCurrentState = mEnumStates[V];
+                            break;
+                        }
+                    }
                     break;
                 }
                 case SPARE: {
@@ -295,13 +372,13 @@ public class PID {
                     break;
                 }
                 default: {
-                    Log.d ("PID", "Type update error");
+                    Log.d ("PID", "Error - element update type error");
                     break;
                 }
             }
         }
 
-        public boolean validate() {
+        boolean validate() {
             // determine if element is properly configured & parsed, safe for usage
             boolean valid = false;
             switch (mType) {
@@ -314,12 +391,21 @@ public class PID {
                 }
                 case VALUE: {
                     // TODO: Add value type validation logic
-                    valid = true;
+                    if(!mStartPosition.isEmpty() && !mShortName.isEmpty() && mValueScaling != 0 && mBitLength > 0 && (mValueMin < mValueMax))
+                        valid = true;
                     break;
                 }
                 case ENUM: {
                     // TODO: Add enumeration type validation logic
                     valid = true;
+                    for(String S : mEnumStates) {
+                        if(S.isEmpty()) {
+                            valid = false;
+                            break;
+                        }
+                    }
+                    if(mNumStates < 1 || mParsedStates != mNumStates)
+                        valid = false;
                     break;
                 }
                 case SPARE: {
