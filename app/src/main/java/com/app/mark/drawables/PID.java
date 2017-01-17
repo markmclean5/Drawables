@@ -50,7 +50,7 @@ public class PID {
     public void printData() {
         if(mType == PIDType.SUPPORT) {
             // Support type PID - print out which elements are supported
-            Log.d ("PID", "Support Type PID printout - Supported PIDs are:");
+            Log.d ("PID", "Support Type PID printout " + mMode + mCommand + " - " + mName + ":");
             for(Element E : ElementList) {
                 if(E.mType == ElementType.BOOLEAN && E.mBoolState == true) {
                     Log.d("PID", "    " + E.mShortName + " - " + E.mLongName);

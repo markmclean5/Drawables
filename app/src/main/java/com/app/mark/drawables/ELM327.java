@@ -4,16 +4,13 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
-import android.os.CountDownTimer;
 import android.os.SystemClock;
-import android.util.AttributeSet;
 import android.util.Log;
+
 
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.UUID;
-
-import static android.os.SystemClock.currentThreadTimeMillis;
 
 /**
  * Created by mark on 12/22/2016.
@@ -32,11 +29,11 @@ public class ELM327 {
     Context mContext;
 
 
+
     public class ELMThread extends Thread {
 
         private boolean mRun = false;
         private final Object mRunLock = new Object();
-
 
         Connection mBTconn;
         Connection mELMconn;
@@ -177,6 +174,8 @@ public class ELM327 {
                         // Run thread logic
                         //Log.d("ELMThread", "if mRun");
 
+
+
                         if(mDataRequest == Request.READY) {
                             reset();
                             setProtoAuto();
@@ -220,6 +219,11 @@ public class ELM327 {
                             Pid0105.update(data);
                             Pid0105.printData();
 
+                            PID Pid0106 = new PID(mContext, "0106");
+                            data = request(Pid0106.getCommand());
+                            Pid0106.update(data);
+                            Pid0106.printData();
+
 
                             Log.d("ELM327", "PID update completed");
 
@@ -259,7 +263,10 @@ public class ELM327 {
     // ELM327 Constructor
     public ELM327(Context context) {
         mContext = context;
-        thread = new ELMThread();
+        thread = new ELMThread() {
+
+        };
+
     }
 
     // get the ELMThread

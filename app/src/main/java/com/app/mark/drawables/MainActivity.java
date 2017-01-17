@@ -12,6 +12,8 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import java.util.ArrayList;
 import java.util.Set;
+import java.lang.ref.WeakReference;
+import android.os.Message;
 
 public class MainActivity extends Activity {
 
@@ -26,6 +28,7 @@ public class MainActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         // tell system to use the layout defined in our XML file
         setContentView(R.layout.activity_main);
 
@@ -49,8 +52,21 @@ public class MainActivity extends Activity {
         mDrawableThread.doStart();
 
         // Bluetooth!!
-        ArrayList deviceStrs = new ArrayList();
-        final ArrayList devices = new ArrayList();
+        //ArrayList deviceStrs = new ArrayList();
+        //final ArrayList devices = new ArrayList();
+
+        String alertMessage = "";
+
+        AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
+        alertDialog.setTitle("Connecting");
+        alertDialog.setMessage(alertMessage);
+        alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "CANCEL",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+        alertDialog.show();
 
         BluetoothAdapter btAdapter = BluetoothAdapter.getDefaultAdapter();
         Set<BluetoothDevice> pairedDevices = btAdapter.getBondedDevices();
@@ -58,31 +74,18 @@ public class MainActivity extends Activity {
         {
             for (BluetoothDevice device : pairedDevices)
             {
-                deviceStrs.add(device.getName() + "\n" + device.getAddress());
-                devices.add(device.getAddress());
+                if(device.getName().equalsIgnoreCase("OBDII")) {
+                    alertDialog.setMessage("Found OBDII bluetooth device: " + device.getAddress());
+                    mELMThread.connect(device.getAddress());
+                    mELMThread.setRunning(true);
+                    mELMThread.start();
+                    break;
+                }
             }
-        }
 
-        // show list
-        final AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
-
-        ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.select_dialog_singlechoice,
-                deviceStrs.toArray(new String[deviceStrs.size()]));
-
-        alertDialog.setSingleChoiceItems(adapter, -1, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-                int position = ((AlertDialog) dialog).getListView().getCheckedItemPosition();
-                String deviceAddress = (String) devices.get(position);
-                mELMThread.connect(deviceAddress);
-                mELMThread.setRunning(true);
-                mELMThread.start();
-
-            }
-        });
-        alertDialog.setTitle("Choose Bluetooth device");
-        alertDialog.show();
+        } else
+            Log.d("MainActivity", "Error - no paired bluetooth devices");
+        alertDialog.dismiss();
 
         mAddGaugeButton = new Button(this);
 
@@ -98,8 +101,13 @@ public class MainActivity extends Activity {
 
     }
 
-
-
-
-
+    public void logMe(String str) {
+        Log.d("MainActivity", str);
+    }
 }
+
+
+
+
+
+

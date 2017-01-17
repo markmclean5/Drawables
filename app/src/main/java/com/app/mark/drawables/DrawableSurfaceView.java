@@ -19,6 +19,33 @@ import java.util.Vector;
 class DrawableSurfaceView extends SurfaceView implements SurfaceHolder.Callback {
     class DrawableThread extends Thread {
 
+
+        private final Handler handler = new Handler() {
+            public void handleMessage(Message msg) {
+                String aResponse = msg.getData().getString("message");
+                if ((null != aResponse)) {
+                    // ALERT MESSAGE
+                    Log.d("DrawableThread", "Message recieved: "+aResponse);
+                }
+                else {
+                    /// ALERT MESSAGE
+                    Log.d("DrawableThread", "No message received");
+                }
+
+            }
+        };
+
+        private void threadMsg(String msg) {
+
+            if (!msg.equals(null) && !msg.equals("")) {
+                Message msgObj = handler.obtainMessage();
+                Bundle b = new Bundle();
+                b.putString("message", msg);
+                msgObj.setData(b);
+                handler.sendMessage(msgObj);
+            }
+        }
+
         /*
         * State-tracking constants
         */
@@ -39,21 +66,10 @@ class DrawableSurfaceView extends SurfaceView implements SurfaceHolder.Callback 
         /** The state of the game. One of READY, RUNNING, PAUSE, LOSE, or WIN */
         private int mMode;
 
-        /**
-         * Current height of the surface/canvas.
-         *
-         * @see #setSurfaceSize
-         */
-        private int mCanvasHeight = 1;
-        /**
-         * Current width of the surface/canvas.
-         *
-         * @see #setSurfaceSize
-         */
-        private int mCanvasWidth = 1;
+        int mCanvasWidth = 1;
 
-        /** Message handler used by thread to interact with TextView */
-        private Handler mHandler;
+        int mCanvasHeight = 1;
+
 
         /** Test line paint */
         private Paint mLinePaint;
@@ -86,11 +102,9 @@ class DrawableSurfaceView extends SurfaceView implements SurfaceHolder.Callback 
         }
 
 
-        public DrawableThread(SurfaceHolder surfaceHolder, Context context,
-                              Handler handler) {
+        public DrawableThread(SurfaceHolder surfaceHolder, Context context) {
             // get handles to some important objects
             mSurfaceHolder = surfaceHolder;
-            mHandler = handler;
             mContext = context;
             Resources res = context.getResources();
             // Initialize paint
@@ -130,6 +144,7 @@ class DrawableSurfaceView extends SurfaceView implements SurfaceHolder.Callback 
         }
         @Override
         public void run() {
+            threadMsg("TEST TEST TEST");
             while (mRun) {
                 Canvas c = null;
                 try {
@@ -269,13 +284,7 @@ class DrawableSurfaceView extends SurfaceView implements SurfaceHolder.Callback 
         SurfaceHolder holder = getHolder();
         holder.addCallback(this);
         // create thread only; it's started in surfaceCreated()
-        thread = new DrawableThread(holder, context, new Handler() {
-            @Override
-            public void handleMessage(Message m) {
-                //mStatusText.setVisibility(m.getData().getInt("viz"));
-                //mStatusText.setText(m.getData().getString("text"));
-            }
-        });
+        thread = new DrawableThread(holder, context);
         setFocusable(true); // make sure we get key events
     }
     /**
