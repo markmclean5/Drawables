@@ -6,6 +6,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -20,10 +21,26 @@ public class MainActivity extends Activity {
     private DrawableSurfaceView.DrawableThread mDrawableThread;
     private DrawableSurfaceView mDrawableSurfaceView;
 
-    private ELM327.ELMThread mELMThread;
     private ELM327 mELM327;
 
     Button mAddGaugeButton;
+
+
+    Bundle myB = new Bundle();                 //used for creating the msgs
+    public Handler mHandler = new Handler(){   //handles the INcoming msgs
+        @Override public void handleMessage(Message msg)
+        {
+            myB = msg.getData();
+            Log.i("MainAct Handlr", "Handler got message"+ myB.getInt("THREAD DELIVERY"));
+        }
+    };
+
+    void sendMsgToThread(String tag, String cmd) {
+        Message msg = mELM327.getHandler().obtainMessage();
+        myB.putString(tag, cmd);
+        msg.setData(myB);
+        mELM327.getHandler().sendMessage(msg);
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -35,9 +52,8 @@ public class MainActivity extends Activity {
         // get handles to the LunarView from XML, and its LunarThread
         mDrawableSurfaceView = (DrawableSurfaceView) findViewById(R.id.lunar);
 
-        mELM327 = new ELM327(this);
+        mELM327 = new ELM327(this, mHandler);
 
-        mELMThread = mELM327.getThread();
 
         mDrawableThread = mDrawableSurfaceView.getThread();
         if (savedInstanceState == null) {
@@ -57,17 +73,8 @@ public class MainActivity extends Activity {
 
         String alertMessage = "";
 
-        AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
-        alertDialog.setTitle("Connecting");
-        alertDialog.setMessage(alertMessage);
-        alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "CANCEL",
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                });
-        alertDialog.show();
 
+        Log.d("MA", "before bluetooth");
         BluetoothAdapter btAdapter = BluetoothAdapter.getDefaultAdapter();
         Set<BluetoothDevice> pairedDevices = btAdapter.getBondedDevices();
         if (pairedDevices.size() > 0)
@@ -75,17 +82,18 @@ public class MainActivity extends Activity {
             for (BluetoothDevice device : pairedDevices)
             {
                 if(device.getName().equalsIgnoreCase("OBDII")) {
-                    alertDialog.setMessage("Found OBDII bluetooth device: " + device.getAddress());
-                    mELMThread.connect(device.getAddress());
-                    mELMThread.setRunning(true);
-                    mELMThread.start();
+                    Log.d("MA", "after bluetooth");
+                    Log.d("MA", "starting ELM327");
+                    mELM327.start();
+                    Log.d("MA", "issuing connect cmd");
+                    sendMsgToThread("ADDRESS", device.getAddress());
+                    Log.d("MA", "post connect in MA!!!");
                     break;
                 }
             }
 
         } else
             Log.d("MainActivity", "Error - no paired bluetooth devices");
-        alertDialog.dismiss();
 
         mAddGaugeButton = new Button(this);
 
