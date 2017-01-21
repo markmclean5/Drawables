@@ -23,12 +23,66 @@ import java.util.UUID;
 
 public class ELM327 extends Thread {
 
+    private enum CONN_STS {
+        DISCONNECTED,
+        CONNECTED,
+        FAILED
+    }
+
+    private enum CMD_TYPE {
+        NONE,
+        BT_ELM_CONNECT,
+        ELM_TIMEOUT,
+        ELM_RESET,
+        ECU_CONNECT,
+        ELM_REQUEST_DATA
+    }
+
+    private CMD_TYPE mLatestCmd = CMD_TYPE.NONE;            // Latest unprocessed command from inHandler
+    private String mDataRequestCmd = "";                    // Data request command string
+    private int mELMTimeoutVal = 3000;                      // ELM327 response timeout (ms)
+    private boolean btConnected = false;                    // State of bluetooth connection
+    private boolean elmConnected = false;                   // State of ELM connection
+
+    private enum DATA_STS {         // Used for data request
+        READY,                      // Ready to make a data request - last data received
+        REQUESTED                   // Data is currently requested - no new requests
+    }
+
+
+    private boolean btConnect(String deviceAddress) {
+        // Connect to ELM327
+        // TODO save deviceAddress
+        boolean success = false;
+        Log.d("ELMThread", "connect bluetooth device address: " + deviceAddress);
+        BluetoothAdapter btAdapter = BluetoothAdapter.getDefaultAdapter();
+        BluetoothDevice device = btAdapter.getRemoteDevice(deviceAddress);
+        UUID uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
+        try {
+            BluetoothSocket socket = device.createInsecureRfcommSocketToServiceRecord(uuid);
+            socket.connect();
+            mBTinStream = socket.getInputStream();
+            mBToutStream = socket.getOutputStream();
+            success = true;
+            Log.d("ELMThread", "connect connected: " + deviceAddress);
+        } catch (Throwable e) {
+            Log.d("ELMThread", "connect exception");
+            success = false;
+            e.printStackTrace();
+        }
+        return success;
+    }
+
+    private String elmConnect() {
+        return reset();
+    }
+
     private static final int DISCONNECTED = 0;
     private static final int CONNECTING = 1;
     private static final int CONNECTED = 2;
     private static final int REQUESTED = 3;
 
-    String mBluetoothAddr;
+    private String mBluetoothAddr;
 
     private static final int NOT_READY = 0;
     private static final int READY = 1;
@@ -60,50 +114,103 @@ public class ELM327 extends Thread {
         mRXbuffer = "";
     }
 
-    // Handler for
-    private Handler inHandler = new Handler(){
+    // Handler for commands issued to ELM327 thread
+    private Handler inHandler = new Handler() {
         // Handler for message received by ELM327 thread
-        @Override public void handleMessage(Message msg)
-        {
+        @Override
+        public void handleMessage(Message msg) {
             mBundle = msg.getData();
-
-            if(mBundle.containsKey("ADDRESS")) {
-                Log.i("ELM327", "Handler got address"+ mBundle.getString("ADDRESS"));
-
-                mBluetoothAddr  = mBundle.getString("ADDRESS");
-                mBTconn = REQUESTED;
+            if (mBundle.containsKey("CMD")) {
+                String cmd = mBundle.getString("CMD");
+                switch (cmd) {
+                    // Handle valid commands - set up initial conditions for run() to perform
+                    case "BT_ELM_CONNECT":
+                        Log.d("ELM327", "Connect command received");
+                        mBluetoothAddr = mBundle.getString("DEVICE_ADDR");
+                        mLatestCmd = CMD_TYPE.BT_ELM_CONNECT;
+                        break;
+                    case "ELM_TIMEOUT":
+                        Log.d("ELM327", "Set timeout command received");
+                        mELMTimeoutVal = mBundle.getInt("TIMEOUT_VAL");
+                        Log.d("ELM327", "Timeout val set to " + mELMTimeoutVal + "ms");
+                        break;
+                    case "ELM_RESET":
+                        Log.d("ELM327", "Reset command received");
+                        mLatestCmd = CMD_TYPE.ELM_RESET;
+                        break;
+                    case "ECU_CONNECT":
+                        Log.d("ELM327", "ECU connect command received");
+                        mLatestCmd = CMD_TYPE.ECU_CONNECT;
+                        break;
+                    case "ELM_REQUEST_DATA":
+                        mDataRequestCmd = mBundle.getString("ELM_REQUEST_DATA");
+                        Log.d("ELM327", "ECU request data command received: " + mDataRequestCmd);
+                        break;
+                    default:
+                        Log.d("ELM327", "Unknown command type received");
+                        break;
+                }
+            } else {
+                Log.d("ELM327", "inHandler message received without command")
             }
         }
     };
 
-    public Handler getHandler(){
+
+    // Returns input handler
+    public Handler getHandler() {
         return inHandler;
     }
 
-    private void sendMessage(String msg) {
-        if (!msg.equals(null) && !msg.equals("")) {
-            Message msgObj = outHandler.obtainMessage();
-            Bundle b = new Bundle();
-            b.putString("message", msg);
-            msgObj.setData(b);
-            outHandler.sendMessage(msgObj);
-        }
+    // Convert a boolean to "FAIL" (false) or "OK" (true)
+    private String fail_okay(boolean in) {
+        if (in)
+            return "OK";
+        else
+            return "FAIL";
     }
 
+    // Send a response detailing results of BT_ELM_CONNECT
+    private void btConnectResp(boolean btConn, boolean elmConn, String elmVers) {
+        Log.d("ELM327", "Responding to BT_ELM_CONNECT");
+        Bundle b = new Bundle();
+        b.putString("RESP", "BT_ELM_CONNECT");
+        b.putString("BT_CONNECT_RESULT", fail_okay(btConn));
+        b.putString("ELM_CONNECT_RESULT", fail_okay(elmConn));
+        b.putString("ELM_VERSION_STRING", elmVers);
+        sendMessage(b);
+    }
+
+    // Send a response detailing results of ELM_RESET
+    private void elmResetResp(boolean resetResult) {
+        Log.d("ELM327", "Responding to ELM_RESET");
+        Bundle b = new Bundle();
+        b.putString("RESP", "ELM_RESET");
+        b.putString("ELM_RESET_RESULT", fail_okay(resetResult));
+        sendMessage(b);
+    }
+
+
+    // Send a Bundle from thread in a Message using outHandler
+    private void sendMessage(Bundle b) {
+        Message msgOut = outHandler.obtainMessage();
+        msgOut.setData(b);
+        outHandler.sendMessage(msgOut);
+    }
+
+
     // send (string Data) - Send Data over Bluetooth!
-    public void send(String Data) {
-        if(mBTconn == CONNECTED) {
+    private void send(String Data) {
+        if (mBTconn == CONNECTED) {
             // Append with CR + NL
             Data += "\r\n";
             try {
                 mBToutStream.write(Data.getBytes());
-            }
-            catch (Throwable e) {
+            } catch (Throwable e) {
                 Log.d("ELMThread", "send exception");
                 e.printStackTrace();
             }
-        }
-        else Log.d("ELMThread", "send error - called while disconnected");
+        } else Log.d("ELMThread", "send error - called while disconnected");
     }
 
     // receive string Data - Receive Data over Bluetooth!
@@ -111,25 +218,25 @@ public class ELM327 extends Thread {
         byte[] inBytes = new byte[50];
         String Data = "";
         Boolean complete = false;
-        if(mBTconn == CONNECTED) {
+        if (mBTconn == CONNECTED) {
             try {
-                while(!complete) {
+                while (!complete) {
                     int numBytes = mBTinStream.available();
-                    if(numBytes > 0) {
+                    if (numBytes > 0) {
                         //Log.d("ELMThread", "receive bytes available" + numBytes);
                         byte[] bytes = new byte[numBytes];
                         mBTinStream.read(bytes, 0, numBytes);
                         String In = new String(bytes, "UTF-8");
                         //Log.d("ELMThread", "receive" + In );
                         Data += In;
-                        if(Data.indexOf('>') != -1) {
+                        if (Data.indexOf('>') != -1) {
                             Data = Data.replace(">", "");
                             complete = true;
                         }
                     }
 
                 }
-            } catch (Throwable e){
+            } catch (Throwable e) {
                 Log.d("ELMThread", "receive exception");
                 e.printStackTrace();
             }
@@ -138,37 +245,6 @@ public class ELM327 extends Thread {
     }
 
 
-    // Connect to ELM327 and ECU
-    public void connect(String deviceAddress){
-        Log.d("ELMThread", "debug delay");
-        try{
-            sleep(10000);
-        } catch (InterruptedException e){
-            e.printStackTrace();
-            Log.d("ELMThread", "debug delay exception");
-
-        }
-
-        // Connect to ELM327
-        // TODO save deviceAddress
-        Log.d("ELMThread", "connect device address: " + deviceAddress);
-        BluetoothAdapter btAdapter = BluetoothAdapter.getDefaultAdapter();
-        BluetoothDevice device = btAdapter.getRemoteDevice(deviceAddress);
-        UUID uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
-        try {
-            BluetoothSocket socket = device.createInsecureRfcommSocketToServiceRecord(uuid);
-            socket.connect();
-            mBTinStream = socket.getInputStream();
-            mBToutStream = socket.getOutputStream();
-            mBTconn = CONNECTED;
-            mDataRequest = READY;
-            Log.d("ELMThread", "connect connected: " + deviceAddress);
-        } catch (Throwable e) {
-            Log.d("ELMThread", "connect exception");
-            e.printStackTrace();
-        }
-    }
-
     // Disconnect from ELM327, close connections
     public void disconnect() {
         mECUconn = DISCONNECTED;
@@ -176,37 +252,84 @@ public class ELM327 extends Thread {
     }
 
 
-    public void reset() {
-        String cmd = "atz";
-        Log.d("ELMThread", "Reset Requested data " + cmd);
-        send(cmd);
+    // Issue reset command to ELM327
+    public String reset() {
+        send("atz");                // issue actual reset command
         String resp = receive();
-        Log.d("ELMThread", "Reset Received data "+ resp);
+        send("ate0");               // set echo off
+        resp = receive();
+        send("ati");                // request version
+        resp = receive();
+        return resp;
     }
 
+    //
     public void setProtoAuto() {
         String cmd = "atsp0";
         Log.d("ELMThread", "Set Proto Auto Requested data " + cmd);
         send(cmd);
         String resp = receive();
-        Log.d("ELMThread", "Set Proto Auto Received data "+ resp);
+        Log.d("ELMThread", "Set Proto Auto Received data " + resp);
     }
+
     public void displayProto() {
         String cmd = "atdp";
         send(cmd);
         String resp = receive();
     }
+
     public String request(String PID) {
         send(PID);
-        String resp = receive();
-        return resp;
+        return receive();
     }
 
 
     @Override
     public void run() {
-        while(true) {
+        while (true) {
             //Run loop!!
+
+            switch (mLatestCmd) {
+                case NONE:
+                    // Nothing to do here - move right along
+                    break;
+                case BT_ELM_CONNECT:
+                    if (!btConnected && !elmConnected)
+                        btConnected = btConnect(mBluetoothAddr);
+                        if(!btConnected) {
+                            Log.d("ELMThread", "Bluetooth connect error");
+                        }
+                    else
+                        Log.d("ELMThread", "Connect called while already connected");
+                    if (btConnected && !elmConnected) {
+                        Log.d("ELMThread", "Bluetooth connect success, connecting to ELM");
+                        String elmVers = reset();
+                        if (elmVers.startsWith("ELM327 V")) {
+                            elmConnected = true;
+                            Log.d("ELMThread", "ELM connect success");
+                        } else {
+                            Log.d("ELMThread", "ELM connect error");
+                            elmConnected = false;
+                        }
+
+                    }
+                    break;
+
+                ELM_RESET,
+                        ECU_CONNECT,
+                        ELM_REQUEST_DATA
+            }
+
+
+
+
+
+
+
+
+
+
+            /*
             if(mBTconn == REQUESTED) {
                 mBTconn = CONNECTING;
                 connect(mBluetoothAddr);
@@ -264,29 +387,7 @@ public class ELM327 extends Thread {
                 }
 
             }
+        } */
         }
-
-
-//        while (mRun) {
-//            synchronized (mRunLock) {
-//                if (mRun) {
-//                    // Run thread logic
-//                    //Log.d("ELMThread", "if mRun");
-//
-//
-//
-//
-//
-//                    }
-//                    while(true) {
-//                        long start = SystemClock.currentThreadTimeMillis();
-//                        //requestMode1("01");
-//                        long end = SystemClock.currentThreadTimeMillis();
-//
-//                        //Log.d("ELMThread", "loop complete " + (end - start));
-//                    }
-//                }
-//            }
-//        }
     }
 }
