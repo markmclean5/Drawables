@@ -2,6 +2,7 @@ package com.app.mark.drawables;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.DialogInterface;
@@ -15,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Set;
 import java.lang.ref.WeakReference;
 import android.os.Message;
+import android.widget.EditText;
 
 public class MainActivity extends Activity {
 
@@ -24,21 +26,82 @@ public class MainActivity extends Activity {
     private ELM327 mELM327;
 
     Button mAddGaugeButton;
+    AlertDialog statusDialog;
 
-
-    Bundle myB = new Bundle();                 //used for creating the msgs
     public Handler mHandler = new Handler(){   //handles the INcoming msgs
         @Override public void handleMessage(Message msg)
         {
-            myB = msg.getData();
-            Log.i("MainAct Handlr", "Handler got message"+ myB.getInt("THREAD DELIVERY"));
+            Bundle inputBundle = new Bundle();
+            inputBundle = msg.getData();
+
+            if(inputBundle.containsKey("RESP")) {
+                String resp = inputBundle.getString("RESP");
+                switch (resp) {
+                    // Handle valid commands - set up initial conditions for run() to perform
+                    case "BT_ELM_CONNECT":
+                        if(inputBundle.getString("ELM_CONNECT_RESULT") == "OK") {
+                            statusDialog.setMessage("ELM Connected - " + inputBundle.getString("ELM_VERSION_STRING"));
+                            sendEcuConnectCmd();
+                        }
+                        else
+                            statusDialog.setMessage("Failed to connect to ELM");
+                        break;
+                    case "ELM_TIMEOUT":
+                        Log.d("MA", "Set timeout command response received");
+
+                        break;
+                    case "ELM_RESET":
+                        Log.d("MA", "Reset command response received");
+
+                        break;
+                    case "ECU_CONNECT":
+                        Log.d("MA", "ECU connect command response received");
+                        if(inputBundle.getString("ECU_CONNECT_RESULT") == "OK") {
+                            statusDialog.setMessage("ECU Connected - " + inputBundle.getString("ECU_PROTO_STRING"));
+                            sendEcuConnectCmd();
+                        }
+                        else
+                            statusDialog.setMessage("Failed to connect to ECU");
+
+                        // Dismiss status dialog after two seconds
+                        new Handler().postDelayed(new Runnable() {
+                            public void run() {
+                                statusDialog.dismiss();
+                            }
+                        }, 2000);
+
+
+                        break;
+                    case "ELM_REQUEST_DATA":
+                        Log.d("MA", "ECU request data command response received: ");
+                        break;
+                    default:
+                        Log.d("ELM327", "Unknown command type received");
+                        break;
+                }
+            } else {
+                Log.d("MA", "Invalid message received");
+            }
+
         }
     };
 
-    void sendMsgToThread(String tag, String cmd) {
+
+    void sendElmConnectCmd(String addr) {
+        Bundle connectBundle = new Bundle();
         Message msg = mELM327.getHandler().obtainMessage();
-        myB.putString(tag, cmd);
-        msg.setData(myB);
+        connectBundle.putString("CMD", "BT_ELM_CONNECT");
+        connectBundle.putString("DEVICE_ADDR", addr);
+        msg.setData(connectBundle);
+        mELM327.getHandler().sendMessage(msg);
+    }
+
+
+    void sendEcuConnectCmd() {
+        Bundle connectBundle = new Bundle();
+        Message msg = mELM327.getHandler().obtainMessage();
+        connectBundle.putString("CMD", "ECU_CONNECT");
+        msg.setData(connectBundle);
         mELM327.getHandler().sendMessage(msg);
     }
 
@@ -67,27 +130,26 @@ public class MainActivity extends Activity {
         }
         mDrawableThread.doStart();
 
-        // Bluetooth!!
-        //ArrayList deviceStrs = new ArrayList();
-        //final ArrayList devices = new ArrayList();
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Connection Status");
+        builder.setMessage("Initialize connection");
+        statusDialog = builder.create();
 
-        String alertMessage = "";
+        statusDialog.show();
+
+
 
 
         Log.d("MA", "before bluetooth");
         BluetoothAdapter btAdapter = BluetoothAdapter.getDefaultAdapter();
         Set<BluetoothDevice> pairedDevices = btAdapter.getBondedDevices();
-        if (pairedDevices.size() > 0)
-        {
-            for (BluetoothDevice device : pairedDevices)
-            {
+        if (pairedDevices.size() > 0) {
+            for (BluetoothDevice device : pairedDevices) {
                 if(device.getName().equalsIgnoreCase("OBDII")) {
-                    Log.d("MA", "after bluetooth");
-                    Log.d("MA", "starting ELM327");
                     mELM327.start();
-                    Log.d("MA", "issuing connect cmd");
-                    sendMsgToThread("ADDRESS", device.getAddress());
-                    Log.d("MA", "post connect in MA!!!");
+                    String addr = device.getAddress();
+                    statusDialog.setMessage("BT: Connecting to " + addr);
+                    sendElmConnectCmd(addr);
                     break;
                 }
             }
@@ -109,9 +171,8 @@ public class MainActivity extends Activity {
 
     }
 
-    public void logMe(String str) {
-        Log.d("MainActivity", str);
-    }
+
+
 }
 
 
