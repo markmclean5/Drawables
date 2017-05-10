@@ -90,7 +90,8 @@ public class MainActivity extends Activity {
     void sendElmConnectCmd(String addr) {
         Bundle connectBundle = new Bundle();
         Message msg = mELM327.getHandler().obtainMessage();
-        connectBundle.putString("CMD", "BT_ELM_CONNECT");
+        connectBundle.putSerializable("CMD", ELM327.CMD_TYPE.BT_ELM_CONNECT);
+        //connectBundle.putString("CMD", "BT_ELM_CONNECT");
         connectBundle.putString("DEVICE_ADDR", addr);
         msg.setData(connectBundle);
         mELM327.getHandler().sendMessage(msg);
@@ -100,7 +101,8 @@ public class MainActivity extends Activity {
     void sendEcuConnectCmd() {
         Bundle connectBundle = new Bundle();
         Message msg = mELM327.getHandler().obtainMessage();
-        connectBundle.putString("CMD", "ECU_CONNECT");
+        connectBundle.putSerializable("CMD", ELM327.CMD_TYPE.ECU_CONNECT);
+        //connectBundle.putString("CMD", "ECU_CONNECT");
         msg.setData(connectBundle);
         mELM327.getHandler().sendMessage(msg);
     }
@@ -136,9 +138,6 @@ public class MainActivity extends Activity {
         statusDialog = builder.create();
 
         statusDialog.show();
-
-
-
 
         Log.d("MA", "before bluetooth");
         BluetoothAdapter btAdapter = BluetoothAdapter.getDefaultAdapter();

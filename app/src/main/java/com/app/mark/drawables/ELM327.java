@@ -7,7 +7,6 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.os.SystemClock;
 import android.util.Log;
 
 
@@ -19,13 +18,17 @@ import java.util.UUID;
  * Created by mark on 12/22/2016.
  */
 
-
-
+/**
+ *  ELM327 Class: Interface with EL327 module over bluetooth
+ *  Receives message containing
+ *
+ */
 public class ELM327 extends Thread {
-    private enum CMD_TYPE {
+
+    // Definition of compatible commands key "CMD"
+    enum CMD_TYPE {
         NONE,
         BT_ELM_CONNECT,
-        ELM_TIMEOUT,
         ELM_RESET,
         ECU_CONNECT,
         ELM_REQUEST_DATA
@@ -42,11 +45,6 @@ public class ELM327 extends Thread {
 
     private InputStream mBTinStream;                        // InputStream for bluetooth communication
     private OutputStream mBToutStream;                      // OutputStream for bluetooth communication
-
-    private enum DATA_STS {         // Used for data request
-        READY,                      // Ready to make a data request - last data received
-        REQUESTED                   // Data is currently requested - no new requests
-    }
 
     private boolean btConnect(String deviceAddress) {
         // Connect to ELM327
@@ -109,28 +107,22 @@ public class ELM327 extends Thread {
         public void handleMessage(Message msg) {
             mBundle = msg.getData();
             if (mBundle.containsKey("CMD")) {
-                String cmd = mBundle.getString("CMD");
-                switch (cmd) {
+                mLatestCmd = (CMD_TYPE) mBundle.getSerializable("CMD");
+                switch (mLatestCmd) {
                     // Handle valid commands - set up initial conditions for run() to perform
-                    case "BT_ELM_CONNECT":
+                    case BT_ELM_CONNECT:
                         Log.d("ELM327", "Connect command received");
                         mBluetoothAddr = mBundle.getString("DEVICE_ADDR");
-                        mLatestCmd = CMD_TYPE.BT_ELM_CONNECT;
                         break;
-                    case "ELM_TIMEOUT":
-                        Log.d("ELM327", "Set timeout command received");
-                        mELMTimeoutVal = mBundle.getInt("TIMEOUT_VAL");
-                        Log.d("ELM327", "Timeout val set to " + mELMTimeoutVal + "ms");
-                        break;
-                    case "ELM_RESET":
+                    case ELM_RESET:
                         Log.d("ELM327", "Reset command received");
                         mLatestCmd = CMD_TYPE.ELM_RESET;
                         break;
-                    case "ECU_CONNECT":
+                    case ECU_CONNECT:
                         Log.d("ELM327", "ECU connect command received");
                         mLatestCmd = CMD_TYPE.ECU_CONNECT;
                         break;
-                    case "ELM_REQUEST_DATA":
+                    case ELM_REQUEST_DATA:
                         mDataRequestCmd = mBundle.getString("ELM_REQUEST_DATA");
                         Log.d("ELM327", "ECU request data command received: " + mDataRequestCmd);
                         break;
@@ -167,8 +159,6 @@ public class ELM327 extends Thread {
         b.putString("ECU_PROTO_STRING", ecuProto);
         sendMessage(b);
     }
-
-
 
     // Send a response detailing results of ECU_CONNECT
     private void ecuConnectResp(boolean ecuConnected, String ecuProto) {
