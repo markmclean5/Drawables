@@ -31,18 +31,16 @@ public class ELM327 extends Thread {
         BT_ELM_CONNECT,
         ELM_RESET,
         ECU_CONNECT,
-        ELM_REQUEST_DATA
+        ELM_REQUEST_DATA,
+        ELM_REQUEST_SUPPORTED_PIDS
     }
 
     private CMD_TYPE mLatestCmd = CMD_TYPE.NONE;            // Latest unprocessed command from inHandler
     private String mDataRequestCmd = "";                    // Data request command string
-    private int mELMTimeoutVal = 3000;                      // ELM327 response timeout (ms)
     private boolean btConnected = false;                    // State of bluetooth connection
     private boolean elmConnected = false;                   // State of ELM connection
     private boolean ecuConnected = false;                   // State of ECU connection
-
-    private String ecuProto;
-
+    private String ecuProto;                                // Text string of ECU protocol
     private InputStream mBTinStream;                        // InputStream for bluetooth communication
     private OutputStream mBToutStream;                      // OutputStream for bluetooth communication
 
@@ -111,8 +109,8 @@ public class ELM327 extends Thread {
                 switch (mLatestCmd) {
                     // Handle valid commands - set up initial conditions for run() to perform
                     case BT_ELM_CONNECT:
-                        Log.d("ELM327", "Connect command received");
                         mBluetoothAddr = mBundle.getString("DEVICE_ADDR");
+                        Log.d("ELM327", "Connect command received to " + mBluetoothAddr);
                         break;
                     case ELM_RESET:
                         Log.d("ELM327", "Reset command received");
@@ -150,11 +148,18 @@ public class ELM327 extends Thread {
             return "FAIL";
     }
 
+    private void reportComm(String comm) {
+        Log.d("ELM327", "Reporting Communication");
+        Bundle b = new Bundle();
+        b.putString("COMM_STRING", comm);
+        sendMessage(b);
+    }
+
     // Send a response detailing results of PID_SUPPORT_QUERY
     private void pidSupportResp() {
-        Log.d("ELM327", "Responding to ECU_CONNECT");
+        Log.d("ELM327", "Responding to ELM_REQUEST_SUPPORTED_PIDS");
         Bundle b = new Bundle();
-        b.putString("RESP", "ECU_CONNECT");
+        b.putSerializable("RESP", CMD_TYPE.ELM_REQUEST_SUPPORTED_PIDS);
         b.putString("ECU_CONNECT_RESULT", fail_okay(ecuConnected));
         b.putString("ECU_PROTO_STRING", ecuProto);
         sendMessage(b);
@@ -164,7 +169,7 @@ public class ELM327 extends Thread {
     private void ecuConnectResp(boolean ecuConnected, String ecuProto) {
         Log.d("ELM327", "Responding to ECU_CONNECT");
         Bundle b = new Bundle();
-        b.putString("RESP", "ECU_CONNECT");
+        b.putSerializable("RESP", CMD_TYPE.ECU_CONNECT);
         b.putString("ECU_CONNECT_RESULT", fail_okay(ecuConnected));
         b.putString("ECU_PROTO_STRING", ecuProto);
         sendMessage(b);
@@ -174,7 +179,7 @@ public class ELM327 extends Thread {
     private void btConnectResp(boolean btConn, boolean elmConn, String elmVers) {
         Log.d("ELM327", "Responding to BT_ELM_CONNECT");
         Bundle b = new Bundle();
-        b.putString("RESP", "BT_ELM_CONNECT");
+        b.putSerializable("RESP", CMD_TYPE.BT_ELM_CONNECT);
         b.putString("BT_CONNECT_RESULT", fail_okay(btConn));
         b.putString("ELM_CONNECT_RESULT", fail_okay(elmConn));
         b.putString("ELM_VERSION_STRING", elmVers);
@@ -185,7 +190,7 @@ public class ELM327 extends Thread {
     private void elmResetResp(boolean resetResult) {
         Log.d("ELM327", "Responding to ELM_RESET");
         Bundle b = new Bundle();
-        b.putString("RESP", "ELM_RESET");
+        b.putSerializable("RESP", CMD_TYPE.ELM_RESET);
         b.putString("ELM_RESET_RESULT", fail_okay(resetResult));
         sendMessage(b);
     }
@@ -201,6 +206,7 @@ public class ELM327 extends Thread {
     // send (string Data) - Send Data over Bluetooth!
     private void send(String Data) {
         if (btConnected) {
+            reportComm(Data);
             // Append with CR + NL
             Data += "\r\n";
             try {
@@ -241,6 +247,7 @@ public class ELM327 extends Thread {
                 e.printStackTrace();
             }
         } else Log.d("ELMThread", "receive error - called while disconnected");
+        reportComm(Data);
         return Data;
     }
 
@@ -286,11 +293,14 @@ public class ELM327 extends Thread {
                     // Nothing to do here - move right along
                     break;
                 case BT_ELM_CONNECT:
-                    if (!btConnected && !elmConnected)
+                    if (!btConnected && !elmConnected) {
+                        Log.d("ELM327", "Run() Bluetooth connect  to " + mBluetoothAddr);
                         btConnected = btConnect(mBluetoothAddr);
-                        if(!btConnected) {
-                            Log.d("ELM327", "Bluetooth connect error");
-                        }
+                    }
+
+                    if(!btConnected) {
+                        Log.d("ELM327", "Bluetooth connect error");
+                    }
                     else
                         Log.d("ELM327", "Connect called while already connected");
                     if (btConnected && !elmConnected) {

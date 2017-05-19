@@ -1,0 +1,750 @@
+<?xml version="1.0" encoding="utf-8"?>
+<pids>
+    <pid_0100>
+        <name>PIDs Supported [01-20]</name>
+        <type>support</type>
+        <num_bytes>4</num_bytes>
+        <num_elements>32</num_elements>
+        <mode>01</mode>
+        <command>00</command>
+        <element1>
+            <type>boolean</type>
+            <position>A7</position>
+            <short_name>0101</short_name>
+            <long_name>Monitor Sts</long_name>
+        </element1>
+        <element2>
+            <type>boolean</type>
+            <position>A6</position>
+            <short_name>0102</short_name>
+            <long_name>Freeze DTC</long_name>
+        </element2>
+        <element3>
+            <type>boolean</type>
+            <position>A5</position>
+            <short_name>0103</short_name>
+            <long_name>Fuel Sys Sts</long_name>
+        </element3>
+        <element4>
+            <type>boolean</type>
+            <position>A4</position>
+            <short_name>0104</short_name>
+            <long_name>Calc Eng Load</long_name>
+        </element4>
+        <element5>
+            <type>boolean</type>
+            <position>A3</position>
+            <short_name>0105</short_name>
+            <long_name>Eng Coolant Temp</long_name>
+        </element5>
+        <element6>
+            <type>boolean</type>
+            <position>A2</position>
+            <short_name>0106</short_name>
+            <long_name>STFT - Bank 1</long_name>
+        </element6>
+        <element7>
+            <type>boolean</type>
+            <position>A1</position>
+            <short_name>0107</short_name>
+            <long_name>LTFT - Bank 1</long_name>
+        </element7>
+        <element8>
+            <type>boolean</type>
+            <position>A0</position>
+            <short_name>0108</short_name>
+            <long_name>STFT - Bank 2</long_name>
+        </element8>
+        <element9>
+            <type>boolean</type>
+            <position>B7</position>
+            <short_name>0109</short_name>
+            <long_name>LTFT - Bank 2</long_name>
+        </element9>
+        <element10>
+            <type>boolean</type>
+            <position>B6</position>
+            <short_name>010A</short_name>
+            <long_name>Fuel Press</long_name>
+        </element10>
+        <element11>
+            <type>boolean</type>
+            <position>B5</position>
+            <short_name>010B</short_name>
+            <long_name>Intake Manifold Abs Press</long_name>
+        </element11>
+        <element12>
+            <type>boolean</type>
+            <position>B4</position>
+            <short_name>010C</short_name>
+            <long_name>Eng RPM</long_name>
+        </element12>
+        <element13>
+            <type>boolean</type>
+            <position>B3</position>
+            <short_name>010D</short_name>
+            <long_name>Vehicle Speed</long_name>
+        </element13>
+        <element14>
+            <type>boolean</type>
+            <position>B2</position>
+            <short_name>010E</short_name>
+            <long_name>Timing Adv</long_name>
+        </element14>
+        <element15>
+            <type>boolean</type>
+            <position>B1</position>
+            <short_name>010F</short_name>
+            <long_name>Intake Air Temp</long_name>
+        </element15>
+        <element16>
+            <type>boolean</type>
+            <position>B0</position>
+            <short_name>0110</short_name>
+            <long_name>MAF Air Flow Rate</long_name>
+        </element16>
+        <element17>
+            <type>boolean</type>
+            <position>C7</position>
+            <short_name>0111</short_name>
+            <long_name>Throttle Posn</long_name>
+        </element17>
+        <element18>
+            <type>boolean</type>
+            <position>C6</position>
+            <short_name>0112</short_name>
+            <long_name>Cmd Sec Air Sts</long_name>
+        </element18>
+        <element19>
+            <type>boolean</type>
+            <position>C5</position>
+            <short_name>0113</short_name>
+            <long_name>O2 Sens Present</long_name>
+        </element19>
+        <element20>
+            <type>boolean</type>
+            <position>C4</position>
+            <short_name>0114</short_name>
+            <long_name>O2 Sens 1 V + STFT</long_name>
+        </element20>
+        <element21>
+            <type>boolean</type>
+            <position>C3</position>
+            <short_name>0115</short_name>
+            <long_name>O2 Sens 2 V + STFT</long_name>
+        </element21>
+        <element22>
+            <type>boolean</type>
+            <position>C2</position>
+            <short_name>0116</short_name>
+            <long_name>O2 Sens 3 V + STFT</long_name>
+        </element22>
+        <element23>
+            <type>boolean</type>
+            <position>C1</position>
+            <short_name>0117</short_name>
+            <long_name>O2 Sens 4 V + STFT</long_name>
+        </element23>
+        <element24>
+            <type>boolean</type>
+            <position>C0</position>
+            <short_name>0118</short_name>
+            <long_name>O2 Sens 5 V + STFT</long_name>
+        </element24>
+        <element25>
+            <type>boolean</type>
+            <position>D7</position>
+            <short_name>0119</short_name>
+            <long_name>O2 Sens 5 V + STFT</long_name>
+        </element25>
+        <element26>
+            <type>boolean</type>
+            <position>D6</position>
+            <short_name>011A</short_name>
+            <long_name>O2 Sens 6 V + STFT</long_name>
+        </element26>
+        <element27>
+            <type>boolean</type>
+            <position>D5</position>
+            <short_name>011B</short_name>
+            <long_name>O2 Sens 7 V + STFT</long_name>
+        </element27>
+        <element28>
+            <type>boolean</type>
+            <position>D4</position>
+            <short_name>011C</short_name>
+            <long_name>O2 Sens 8 V + STFT</long_name>
+        </element28>
+        <element29>
+            <type>boolean</type>
+            <position>D3</position>
+            <short_name>011D</short_name>
+            <long_name>OBD Standards</long_name>
+        </element29>
+        <element30>
+            <type>boolean</type>
+            <position>D2</position>
+            <short_name>011E</short_name>
+            <long_name>Aux Input Sts</long_name>
+        </element30>
+        <element31>
+            <type>boolean</type>
+            <position>D1</position>
+            <short_name>011F</short_name>
+            <long_name>Run Time - Eng Start</long_name>
+        </element31>
+        <element32>
+            <type>boolean</type>
+            <position>D0</position>
+            <short_name>0120</short_name>
+            <long_name>PIDs Supported [21-40]</long_name>
+        </element32>
+    </pid_0100>
+
+    <pid_0120>
+        <name>PIDs Supported [21-40]</name>
+        <type>support</type>
+        <num_bytes>4</num_bytes>
+        <num_elements>32</num_elements>
+        <mode>01</mode>
+        <command>20</command>
+        <element1>
+            <type>boolean</type>
+            <position>A7</position>
+            <short_name>0121</short_name>
+            <long_name>Dist With MIL On</long_name>
+        </element1>
+        <element2>
+            <type>boolean</type>
+            <position>A6</position>
+            <short_name>0122</short_name>
+            <long_name>Fuel Rail Press</long_name>
+        </element2>
+        <element3>
+            <type>boolean</type>
+            <position>A5</position>
+            <short_name>0123</short_name>
+            <long_name>Fuel Rail Gauge Press</long_name>
+        </element3>
+        <element4>
+            <type>boolean</type>
+            <position>A4</position>
+            <short_name>0124</short_name>
+            <long_name>O2 Sens 1 F/A R + V</long_name>
+        </element4>
+        <element5>
+            <type>boolean</type>
+            <position>A3</position>
+            <short_name>0125</short_name>
+            <long_name>O2 Sens 2 F/A R + V</long_name>
+        </element5>
+        <element6>
+            <type>boolean</type>
+            <position>A2</position>
+            <short_name>0126</short_name>
+            <long_name>O2 Sens 3 F/A R + V</long_name>
+        </element6>
+        <element7>
+            <type>boolean</type>
+            <position>A1</position>
+            <short_name>0127</short_name>
+            <long_name>O2 Sens 4 F/A R + V</long_name>
+        </element7>
+        <element8>
+            <type>boolean</type>
+            <position>A0</position>
+            <short_name>0128</short_name>
+            <long_name>O2 Sens 5 F/A R + V</long_name>
+        </element8>
+        <element9>
+            <type>boolean</type>
+            <position>B7</position>
+            <short_name>0129</short_name>
+            <long_name>O2 Sens 6 F/A R + V</long_name>
+        </element9>
+        <element10>
+            <type>boolean</type>
+            <position>B6</position>
+            <short_name>012A</short_name>
+            <long_name>O2 Sens 7 F/A R + V</long_name>
+        </element10>
+        <element11>
+            <type>boolean</type>
+            <position>B5</position>
+            <short_name>012B</short_name>
+            <long_name>O2 Sens 8 F/A R + V</long_name>
+        </element11>
+        <element12>
+            <type>boolean</type>
+            <position>B4</position>
+            <short_name>012C</short_name>
+            <long_name>Cmd EGR</long_name>
+        </element12>
+        <element13>
+            <type>boolean</type>
+            <position>B3</position>
+            <short_name>012D</short_name>
+            <long_name>EGR Error</long_name>
+        </element13>
+        <element14>
+            <type>boolean</type>
+            <position>B2</position>
+            <short_name>012E</short_name>
+            <long_name>Cmd Evap Purge</long_name>
+        </element14>
+        <element15>
+            <type>boolean</type>
+            <position>B1</position>
+            <short_name>012F</short_name>
+            <long_name>Fuel Tank Level</long_name>
+        </element15>
+        <element16>
+            <type>boolean</type>
+            <position>B0</position>
+            <short_name>0130</short_name>
+            <long_name>Warm Ups Codes Cleared</long_name>
+        </element16>
+        <element17>
+            <type>boolean</type>
+            <position>C7</position>
+            <short_name>0131</short_name>
+            <long_name>Dist Codes Cleared</long_name>
+        </element17>
+        <element18>
+            <type>boolean</type>
+            <position>C6</position>
+            <short_name>0132</short_name>
+            <long_name>Evap Sys Vapor Press</long_name>
+        </element18>
+        <element19>
+            <type>boolean</type>
+            <position>C5</position>
+            <short_name>0133</short_name>
+            <long_name>Abs Baro Press</long_name>
+        </element19>
+        <element20>
+            <type>boolean</type>
+            <position>C4</position>
+            <short_name>0134</short_name>
+            <long_name>O2 Sens 1 F/A R + I</long_name>
+        </element20>
+        <element21>
+            <type>boolean</type>
+            <position>C3</position>
+            <short_name>0135</short_name>
+            <long_name>O2 Sens 2 F/A R + I</long_name>
+        </element21>
+        <element22>
+            <type>boolean</type>
+            <position>C2</position>
+            <short_name>0136</short_name>
+            <long_name>O2 Sens 3 F/A R + I</long_name>
+        </element22>
+        <element23>
+            <type>boolean</type>
+            <position>C1</position>
+            <short_name>0137</short_name>
+            <long_name>O2 Sens 4 F/A R + I</long_name>
+        </element23>
+        <element24>
+            <type>boolean</type>
+            <position>C0</position>
+            <short_name>0138</short_name>
+            <long_name>O2 Sens 5 F/A R + I</long_name>
+        </element24>
+        <element25>
+            <type>boolean</type>
+            <position>D7</position>
+            <short_name>0139</short_name>
+            <long_name>O2 Sens 6 F/A R + I</long_name>
+        </element25>
+        <element26>
+            <type>boolean</type>
+            <position>D6</position>
+            <short_name>013A</short_name>
+            <long_name>O2 Sens 7 F/A R + I</long_name>
+        </element26>
+        <element27>
+            <type>boolean</type>
+            <position>D5</position>
+            <short_name>013B</short_name>
+            <long_name>O2 Sens 8 F/A R + I</long_name>
+        </element27>
+        <element28>
+            <type>boolean</type>
+            <position>D4</position>
+            <short_name>013C</short_name>
+            <long_name>Cat Temp Bank 1 Sens 1</long_name>
+        </element28>
+        <element29>
+            <type>boolean</type>
+            <position>D3</position>
+            <short_name>013D</short_name>
+            <long_name>Cat Temp Bank 2 Sens 1</long_name>
+        </element29>
+        <element30>
+            <type>boolean</type>
+            <position>D2</position>
+            <short_name>013E</short_name>
+            <long_name>Cat Temp Bank 1 Sens 2</long_name>
+        </element30>
+        <element31>
+            <type>boolean</type>
+            <position>D1</position>
+            <short_name>013F</short_name>
+            <long_name>Cat Temp Bank 2 Sens 2</long_name>
+        </element31>
+        <element32>
+            <type>boolean</type>
+            <position>D0</position>
+            <short_name>0140</short_name>
+            <long_name>PIDs Supported [41-60]</long_name>
+        </element32>
+    </pid_0120>
+
+    <pid_0140>
+        <name>PIDs Supported [41-60]</name>
+        <type>support</type>
+        <num_bytes>4</num_bytes>
+        <num_elements>32</num_elements>
+        <mode>01</mode>
+        <command>40</command>
+        <element1>
+            <type>boolean</type>
+            <position>A7</position>
+            <short_name>0141</short_name>
+            <long_name>Monitor Sts This Cycle</long_name>
+        </element1>
+        <element2>
+            <type>boolean</type>
+            <position>A6</position>
+            <short_name>0142</short_name>
+            <long_name>Control Module Voltage</long_name>
+        </element2>
+        <element3>
+            <type>boolean</type>
+            <position>A5</position>
+            <short_name>0143</short_name>
+            <long_name>Abs Load</long_name>
+        </element3>
+        <element4>
+            <type>boolean</type>
+            <position>A4</position>
+            <short_name>0144</short_name>
+            <long_name>F/A Cmd Ratio</long_name>
+        </element4>
+        <element5>
+            <type>boolean</type>
+            <position>A3</position>
+            <short_name>0145</short_name>
+            <long_name>Rel Throttle Posn</long_name>
+        </element5>
+        <element6>
+            <type>boolean</type>
+            <position>A2</position>
+            <short_name>0146</short_name>
+            <long_name>Ambient Air Temp</long_name>
+        </element6>
+        <element7>
+            <type>boolean</type>
+            <position>A1</position>
+            <short_name>0147</short_name>
+            <long_name>Abs Throttle Posn B</long_name>
+        </element7>
+        <element8>
+            <type>boolean</type>
+            <position>A0</position>
+            <short_name>0148</short_name>
+            <long_name>Abs Throttle Posn C</long_name>
+        </element8>
+        <element9>
+            <type>boolean</type>
+            <position>B7</position>
+            <short_name>0149</short_name>
+            <long_name>Abs Throttle Posn D</long_name>
+        </element9>
+        <element10>
+            <type>boolean</type>
+            <position>B6</position>
+            <short_name>014A</short_name>
+            <long_name>Abs Throttle Posn E</long_name>
+        </element10>
+        <element11>
+            <type>boolean</type>
+            <position>B5</position>
+            <short_name>014B</short_name>
+            <long_name>Abs Throttle Posn F</long_name>
+        </element11>
+        <element12>
+            <type>boolean</type>
+            <position>B4</position>
+            <short_name>014C</short_name>
+            <long_name>Cmd Throttle Actuator</long_name>
+        </element12>
+        <element13>
+            <type>boolean</type>
+            <position>B3</position>
+            <short_name>014D</short_name>
+            <long_name>Time MIL On</long_name>
+        </element13>
+        <element14>
+            <type>boolean</type>
+            <position>B2</position>
+            <short_name>014E</short_name>
+            <long_name>Time Codes Cleared</long_name>
+        </element14>
+        <element15>
+            <type>boolean</type>
+            <position>B1</position>
+            <short_name>014F</short_name>
+            <long_name>Max Vals 1/2</long_name>
+        </element15>
+        <element16>
+            <type>boolean</type>
+            <position>B0</position>
+            <short_name>0150</short_name>
+            <long_name>Max Val MAF Air Flow Rate</long_name>
+        </element16>
+        <element17>
+            <type>boolean</type>
+            <position>C7</position>
+            <short_name>0151</short_name>
+            <long_name>Fuel Type</long_name>
+        </element17>
+        <element18>
+            <type>boolean</type>
+            <position>C6</position>
+            <short_name>0152</short_name>
+            <long_name>Ethanol Fuel %</long_name>
+        </element18>
+        <element19>
+            <type>boolean</type>
+            <position>C5</position>
+            <short_name>0153</short_name>
+            <long_name>Abs Evap Sys Vapor Press</long_name>
+        </element19>
+        <element20>
+            <type>boolean</type>
+            <position>C4</position>
+            <short_name>0154</short_name>
+            <long_name>Evap Sys Vaport Press</long_name>
+        </element20>
+        <element21>
+            <type>boolean</type>
+            <position>C3</position>
+            <short_name>0155</short_name>
+            <long_name>ST Sec O2 Sens Trim Bank1,3</long_name>
+        </element21>
+        <element22>
+            <type>boolean</type>
+            <position>C2</position>
+            <short_name>0156</short_name>
+            <long_name>LT Sec O2 Sens Trim Bank1,3</long_name>
+        </element22>
+        <element23>
+            <type>boolean</type>
+            <position>C1</position>
+            <short_name>0157</short_name>
+            <long_name>ST Sec O2 Sens Trim Bank2,4</long_name>
+        </element23>
+        <element24>
+            <type>boolean</type>
+            <position>C0</position>
+            <short_name>0158</short_name>
+            <long_name>LT Sec O2 Sens Trim Bank2,4</long_name>
+        </element24>
+        <element25>
+            <type>boolean</type>
+            <position>D7</position>
+            <short_name>0159</short_name>
+            <long_name>Fuel Rail Abs Press</long_name>
+        </element25>
+        <element26>
+            <type>boolean</type>
+            <position>D6</position>
+            <short_name>015A</short_name>
+            <long_name>Rel Accel Pedal Posn</long_name>
+        </element26>
+        <element27>
+            <type>boolean</type>
+            <position>D5</position>
+            <short_name>015B</short_name>
+            <long_name>Hybrid Batt Pack Life Rem</long_name>
+        </element27>
+        <element28>
+            <type>boolean</type>
+            <position>D4</position>
+            <short_name>015C</short_name>
+            <long_name>Eng Oil Temp</long_name>
+        </element28>
+        <element29>
+            <type>boolean</type>
+            <position>D3</position>
+            <short_name>015D</short_name>
+            <long_name>Fuel Inj Timing</long_name>
+        </element29>
+        <element30>
+            <type>boolean</type>
+            <position>D2</position>
+            <short_name>015E</short_name>
+            <long_name>Eng Fuel Rate</long_name>
+        </element30>
+        <element31>
+            <type>boolean</type>
+            <position>D1</position>
+            <short_name>013F</short_name>
+            <long_name>Emission Rqmts</long_name>
+        </element31>
+        <element32>
+            <type>boolean</type>
+            <position>D0</position>
+            <short_name>0140</short_name>
+            <long_name>PIDs Supported [61-80]</long_name>
+        </element32>
+    </pid_0140>
+
+    <!-- PID 0101 is under construction - has many more test status elements -->
+    <pid_0101>
+        <name>Monitor Status</name>
+        <type>parameter</type>
+        <num_bytes>4</num_bytes>
+        <num_elements>2</num_elements>
+        <mode>01</mode>
+        <command>01</command>
+        <element1>
+            <type>boolean</type>
+            <position>A7</position>
+            <short_name>MIL ON</short_name>
+            <long_name>Malfunction Indicator Light On</long_name>
+        </element1>
+        <element2>
+            <type>value</type>
+            <position>A6</position>
+            <num_bits>7</num_bits>
+            <short_name>DTC_CNT</short_name>
+            <long_name>Diagnostic Trouble Code Count</long_name>
+            <min>0.0</min>
+            <max>127.0</max>
+            <units>#</units>
+            <scaling>1.0</scaling>
+            <offset>0.0</offset>
+        </element2>
+    </pid_0101>
+
+    <!-- PID 0102 missing -->
+
+    <!-- PID 0103 -->
+    <pid_0103>
+        <name>Fuel System Status</name>
+        <type>parameter</type>
+        <num_bytes>2</num_bytes>
+        <num_elements>2</num_elements>
+        <mode>01</mode>
+        <command>03</command>
+        <element1>
+            <type>enum</type>
+            <position>A7</position>
+            <num_bits>7</num_bits>
+            <short_name>FUEL_SYS_1_STS</short_name>
+            <long_name>Fuel System #1 Status</long_name>
+            <num_states>5</num_states>
+            <enum_1_value>1</enum_1_value>
+            <enum_1_state>Open loop - insufficient engine temp</enum_1_state>
+            <enum_2_value>2</enum_2_value>
+            <enum_2_state>Closed loop - using O2 sensor to determine fuel mix</enum_2_state>
+            <enum_3_value>4</enum_3_value>
+            <enum_3_state>Open loop - engine load or fuel cut due to decel</enum_3_state>
+            <enum_4_value>8</enum_4_value>
+            <enum_4_state>Open loop - system failure</enum_4_state>
+            <enum_5_value>16</enum_5_value>
+            <enum_5_state>Closed loop - using at least one O2 sensor - feedback fault</enum_5_state>
+            <enum_invalid_state>INVALID</enum_invalid_state>
+        </element1>
+        <element2>
+            <type>enum</type>
+            <position>A7</position>
+            <num_bits>7</num_bits>
+            <short_name>FUEL_SYS_2_STS</short_name>
+            <long_name>Fuel System #2 Status</long_name>
+            <num_states>5</num_states>
+            <enum_1_value>1</enum_1_value>
+            <enum_1_state>Open loop - insufficient engine temp</enum_1_state>
+            <enum_2_value>2</enum_2_value>
+            <enum_2_state>Closed loop - using O2 sensor to determine fuel mix</enum_2_state>
+            <enum_3_value>4</enum_3_value>
+            <enum_3_state>Open loop - engine load or fuel cut due to decel</enum_3_state>
+            <enum_4_value>8</enum_4_value>
+            <enum_4_state>Open loop - system failure</enum_4_state>
+            <enum_5_value>16</enum_5_value>
+            <enum_5_state>Closed loop - using at least one O2 sensor - feedback fault</enum_5_state>
+            <enum_invalid_state>INVALID</enum_invalid_state>
+        </element2>
+    </pid_0103>
+
+    <!-- PID 0104 -->
+    <pid_0104>
+        <name>Calc Eng Load</name>
+        <type>parameter</type>
+        <num_bytes>1</num_bytes>
+        <num_elements>1</num_elements>
+        <mode>01</mode>
+        <command>04</command>
+        <element1>
+            <type>value</type>
+            <position>A7</position>
+            <num_bits>8</num_bits>
+            <short_name>CALC_ENG_LOAD</short_name>
+            <long_name>Calculated Engine Load</long_name>
+            <min>0.0</min>
+            <max>100.0</max>
+            <units>%</units>
+            <scaling>0.3921568</scaling>
+            <offset>0.0</offset>
+        </element1>
+    </pid_0104>
+
+    <!-- PID 0105 -->
+    <pid_0105>
+        <name>Engine Coolant Temp</name>
+        <type>parameter</type>
+        <num_bytes>1</num_bytes>
+        <num_elements>1</num_elements>
+        <mode>01</mode>
+        <command>05</command>
+        <element1>
+            <type>value</type>
+            <position>A7</position>
+            <num_bits>8</num_bits>
+            <short_name>ECT</short_name>
+            <long_name>Engine Coolant Temperature</long_name>
+            <min>-40.0</min>
+            <max>215.0</max>
+            <units>dec C</units>
+            <scaling>1.0</scaling>
+            <offset>-40.0</offset>
+        </element1>
+    </pid_0105>
+
+    <!-- PID 0106 -->
+    <pid_0106>
+        <name>Short Term Fuel Trim Bank 1</name>
+        <type>parameter</type>
+        <num_bytes>1</num_bytes>
+        <num_elements>1</num_elements>
+        <mode>01</mode>
+        <command>06</command>
+        <element1>
+            <type>value</type>
+            <position>A7</position>
+            <num_bits>8</num_bits>
+            <short_name>STFT_B1</short_name>
+            <long_name>Short Term Fuel Trim Bank 1</long_name>
+            <min>-100</min>
+            <max>99.2</max>
+            <units>%</units>
+            <scaling>0.78125</scaling>
+            <offset>-100.0</offset>
+        </element1>
+    </pid_0106>
+
+</pids>

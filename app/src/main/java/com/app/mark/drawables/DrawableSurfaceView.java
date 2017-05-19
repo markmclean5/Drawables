@@ -266,7 +266,7 @@ class DrawableSurfaceView extends SurfaceView implements SurfaceHolder.Callback 
             int deltaTime = (int)(currTime - mLastTime);
             String dTimeString = Integer.toString(deltaTime);
             mLinePaint.setTextSize(40);
-            canvas.drawText(dTimeString, 500, 100, mLinePaint);
+            canvas.drawText(dTimeString, 50, 50, mLinePaint);
 
 
             for(Gauge G : mGaugeVector) {

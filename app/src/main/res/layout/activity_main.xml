@@ -3,34 +3,62 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent">
 
-    <com.app.mark.drawables.DrawableSurfaceView
-        android:id="@+id/lunar"
-        android:layout_width="600dp"
-        android:layout_height="fill_parent"/>
-
     <RelativeLayout
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent" >
-        <TextView
-            android:id="@+id/text"
-            android:text="text"
-            android:visibility="visible"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:gravity="center_horizontal"
-            android:textColor="#88ffffff"
-            android:textSize="24sp"/>
+        android:layout_height="fill_parent">
+
+        <com.app.mark.drawables.DrawableSurfaceView
+            android:id="@+id/drawable_surface"
+            android:layout_width="600dp"
+            android:layout_height="fill_parent"/>
+
+        <ListView
+            android:id="@+id/comm_view"
+            android:layout_toRightOf="@id/drawable_surface"
+            android:layout_width="260dp"
+            android:layout_height="fill_parent"
+            android:layout_gravity="end"
+            android:focusableInTouchMode="false"
+            android:listSelector="@android:color/transparent"
+            android:layout_weight="2"
+            android:headerDividersEnabled="false"
+            android:footerDividersEnabled="false"
+            android:dividerHeight="0dp"
+            android:divider="#000000"
+            android:cacheColorHint="#000000"
+            android:drawSelectorOnTop="false"
+            />
+
+
 
     </RelativeLayout>
 
-    <Button
-        android:id="@+id/button"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:text="add gauge"
-        android:onClick="addGauge" />
 
+
+
+    <!--Layout for control buttons-->
+    <RelativeLayout
+        android:layout_width="100dp"
+        android:layout_height="fill_parent"
+        android:layout_gravity="end" >
+        <Button
+            android:id="@+id/connect_button"
+            android:layout_width="fill_parent"
+            android:layout_height="100dp"
+            android:text="ECU Connect" />
+        <Button
+            android:id="@+id/request_button"
+            android:layout_below="@id/connect_button"
+            android:layout_width="fill_parent"
+            android:layout_height="100dp"
+            android:text="Request PIDs" />
+        <Button
+            android:id="@+id/add_gauge_button"
+            android:layout_below="@id/request_button"
+            android:layout_width="fill_parent"
+            android:layout_height="100dp"
+            android:text="add gauge" />
+    </RelativeLayout>
 
 
 </FrameLayout>
