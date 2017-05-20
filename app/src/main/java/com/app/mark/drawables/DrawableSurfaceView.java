@@ -16,28 +16,61 @@ import android.widget.TextView;
 
 import java.util.Vector;
 
+// DrawableSurfaceView class: SurfaceView with thread for drawing operations
+// Receives messages to create/update/destroy display objects (gauges)
+//
 class DrawableSurfaceView extends SurfaceView implements SurfaceHolder.Callback {
+
+    // Definition of compatible commands key "CMD" sent to the thread
+    enum VIEW_CMD_TYPE {
+        NONE,
+        ADD_GAUGE,
+        UPDATE_GAUGE,
+        DESTROY_GAUGE,
+    }
+
+    // Thread for all draw operations
     class DrawableThread extends Thread {
+        // Returns input handler
+        public Handler getHandler() {
+            return handler;
+        }
 
-
+        // Message handler: receives all messages coming into DrawableThread
         private final Handler handler = new Handler() {
             public void handleMessage(Message msg) {
-                String aResponse = msg.getData().getString("message");
-                if ((null != aResponse)) {
-                    // ALERT MESSAGE
-                    Log.d("DrawableThread", "Message recieved: "+aResponse);
+                Bundle mBundle = msg.getData();
+                if(mBundle.containsKey("CMD")) {
+                    VIEW_CMD_TYPE latestCmd = (VIEW_CMD_TYPE) mBundle.getSerializable("CMD");
+                    switch(latestCmd) {
+                        case NONE:
+                            // empty command received
+                            break;
+                        case ADD_GAUGE:
+                            // Add a gauge to the DrawableSurfaceView
+                            String gaugeIdent = mBundle.getString("IDENT");
+                            addGauge(gaugeIdent);
+                            break;
+                        case DESTROY_GAUGE:
+                            String delIdent = mBundle.getString("IDENT");
+                            destroyGauge(delIdent);
+                            break;
+                        case UPDATE_GAUGE:
+                            String updIdent = mBundle.getString("IDENT");
+                            Float updVal= mBundle.getFloat("VAL");
+                            updateGauge(updIdent, updVal);
+                            break;
+                        default:
+                            Log.d("DrawableThread", "Unknown CMD type received");
+                            break;
+                    }
                 }
-                else {
-                    /// ALERT MESSAGE
-                    Log.d("DrawableThread", "No message received");
-                }
-
             }
         };
 
-        private void threadMsg(String msg) {
 
-            if (!msg.equals(null) && !msg.equals("")) {
+        private void threadMsg(String msg) {
+            if (msg!=null && !msg.equals("")) {
                 Message msgObj = handler.obtainMessage();
                 Bundle b = new Bundle();
                 b.putString("message", msg);
@@ -67,7 +100,6 @@ class DrawableSurfaceView extends SurfaceView implements SurfaceHolder.Callback 
         private int mMode;
 
         int mCanvasWidth = 1;
-
         int mCanvasHeight = 1;
 
 
@@ -85,6 +117,19 @@ class DrawableSurfaceView extends SurfaceView implements SurfaceHolder.Callback 
             synchronized (mSurfaceHolder) {
                 mGaugeVector.add(new Gauge(getContext(), ident));
                 Log.d("gauges:", "added gauge" + mGaugeVector.size());
+            }
+
+        }
+
+        public void destroyGauge(String ident) {
+            synchronized (mSurfaceHolder) {
+                if(!mGaugeVector.isEmpty()) {
+                    for(Gauge g:mGaugeVector){
+                        if(g.getIdent().equals(ident)) {
+                            mGaugeVector.remove(g);
+                        }
+                    }
+                }
             }
 
         }
@@ -149,7 +194,6 @@ class DrawableSurfaceView extends SurfaceView implements SurfaceHolder.Callback 
                 Canvas c = null;
                 try {
                     c = mSurfaceHolder.lockCanvas(null);
-                    //gauge1 = new Gauge(getContext(), c, "calc_eng_load");
                     synchronized (mSurfaceHolder) {
                         if (mMode == STATE_RUNNING)
                         // Critical section. Do not allow mRun to be set false until
@@ -231,9 +275,8 @@ class DrawableSurfaceView extends SurfaceView implements SurfaceHolder.Callback 
             synchronized (mSurfaceHolder) {
                 mMode = mode;
                 if (mMode == STATE_RUNNING) {
-
-                } else {
-
+                }
+                else {
                 }
             }
         }
@@ -301,7 +344,7 @@ class DrawableSurfaceView extends SurfaceView implements SurfaceHolder.Callback 
      */
     @Override
     public void onWindowFocusChanged(boolean hasWindowFocus) {
-        if (!hasWindowFocus) thread.pause();
+        //if (!hasWindowFocus) thread.pause();
     }
     /* Callback invoked when the surface dimensions change. */
     public void surfaceChanged(SurfaceHolder holder, int format, int width,

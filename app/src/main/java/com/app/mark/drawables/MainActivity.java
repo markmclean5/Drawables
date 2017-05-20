@@ -2,10 +2,8 @@ package com.app.mark.drawables;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.AlertDialog.Builder;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -14,21 +12,16 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import java.util.ArrayList;
 import java.util.Set;
-import java.lang.ref.WeakReference;
 import android.os.Message;
-import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.TextView;
 
 public class MainActivity extends Activity {
 
     private DrawableSurfaceView.DrawableThread mDrawableThread;
     private DrawableSurfaceView mDrawableSurfaceView;
-
     private ELM327 mELM327;
 
-    Button mAddGaugeButton;
-    Button mConnectButton;
+    // Status dialog
     AlertDialog statusDialog;
 
     // For communicaton logging: listview, adapteer, and arraylist of strings
@@ -42,51 +35,53 @@ public class MainActivity extends Activity {
         {
             Bundle inputBundle = new Bundle();
             inputBundle = msg.getData();
-            // Processing of ELM327 Responses
             if(inputBundle.containsKey("RESP")) {
                 ELM327.CMD_TYPE cmdResp = (ELM327.CMD_TYPE)inputBundle.getSerializable("RESP");
-                switch (cmdResp) {
-                    // Handle valid commands - set up initial conditions for run() to perform
-                    case BT_ELM_CONNECT:
-                        if(inputBundle.getString("ELM_CONNECT_RESULT") == "OK") {
-                            statusDialog.setMessage("ELM Connected - " + inputBundle.getString("ELM_VERSION_STRING"));
-                            sendEcuConnectCmd();
-                        }
-                        else
-                            statusDialog.setMessage("Failed to connect to ELM");
-                        break;
-                    case ELM_RESET:
-                        Log.d("MA", "Reset command response received");
-                        break;
-                    case ECU_CONNECT:
-                        Log.d("MA", "ECU connect command response received");
-                        if(inputBundle.getString("ECU_CONNECT_RESULT") == "OK") {
-                            statusDialog.setMessage("ECU Connected - " + inputBundle.getString("ECU_PROTO_STRING"));
-                            sendEcuConnectCmd();
-                        }
-                        else
-                            statusDialog.setMessage("Failed to connect to ECU");
-                        // Dismiss status dialog after two seconds
-                        new Handler().postDelayed(new Runnable() {
-                            public void run() {
-                                statusDialog.dismiss();
+                if(cmdResp != null) {
+                    switch (cmdResp) {
+                        // Handle valid commands - set up initial conditions for run() to perform
+                        case BT_ELM_CONNECT:
+                            if(inputBundle.getString("ELM_CONNECT_RESULT").equals("OK")) {
+                                statusDialog.setMessage("ELM Connected - " + inputBundle.getString("ELM_VERSION_STRING"));
+                                sendEcuConnectCmd();
                             }
-                        }, 2000);
+                            else
+                                statusDialog.setMessage("Failed to connect to ELM");
+                            break;
+                        case ELM_RESET:
+                            Log.d("MA", "Reset command response received");
+                            break;
+                        case ECU_CONNECT:
+                            Log.d("MA", "ECU connect command response received");
+                            if(inputBundle.getString("ECU_CONNECT_RESULT").equals("OK")) {
+                                statusDialog.setMessage("ECU Connected - " + inputBundle.getString("ECU_PROTO_STRING"));
+                                sendEcuConnectCmd();
+                            }
+                            else
+                                statusDialog.setMessage("Failed to connect to ECU");
+                            // Dismiss status dialog after two seconds
+                            new Handler().postDelayed(new Runnable() {
+                                public void run() {
+                                    statusDialog.dismiss();
+                                }
+                            }, 2000);
 
 
-                        break;
-                    case ELM_REQUEST_DATA:
-                        Log.d("MA", "ECU request data command response received");
-                        break;
+                            break;
+                        case ELM_REQUEST_DATA:
+                            Log.d("MA", "ECU request data command response received");
+                            break;
 
-                    case ELM_REQUEST_SUPPORTED_PIDS:
-                        Log.d("MA", "ECU Request supported PIDs response received");
-                        break;
+                        case ELM_REQUEST_SUPPORTED_PIDS:
+                            Log.d("MA", "ECU Request supported PIDs response received");
+                            break;
 
-                    default:
-                        Log.d("ELM327", "Unknown command type received");
-                        break;
+                        default:
+                            Log.d("ELM327", "Unknown command type received");
+                            break;
+                    }
                 }
+
             }
             // Processing of communication log events
             else if (inputBundle.containsKey("COMM_STRING")) {
@@ -121,9 +116,35 @@ public class MainActivity extends Activity {
         mELM327.getHandler().sendMessage(msg);
     }
 
+    void sendAddGaugeCmd(String identifier) {
+        Bundle connectBundle = new Bundle();
+        Message msg = mDrawableThread.getHandler().obtainMessage();
+        connectBundle.putSerializable("CMD", DrawableSurfaceView.VIEW_CMD_TYPE.ADD_GAUGE);
+        connectBundle.putString("IDENT", identifier);
+        msg.setData(connectBundle);
+        mDrawableThread.getHandler().sendMessage(msg);
+    }
+
+    void sendDestroyGaugeCmd(String identifier) {
+        Bundle connectBundle = new Bundle();
+        Message msg = mDrawableThread.getHandler().obtainMessage();
+        connectBundle.putSerializable("CMD", DrawableSurfaceView.VIEW_CMD_TYPE.DESTROY_GAUGE);
+        connectBundle.putString("IDENT", identifier);
+        msg.setData(connectBundle);
+        mDrawableThread.getHandler().sendMessage(msg);
+    }
 
 
 
+    void sendUpdateGaugeCmd(String identifier, float value) {
+        Bundle connectBundle = new Bundle();
+        Message msg = mDrawableThread.getHandler().obtainMessage();
+        connectBundle.putSerializable("CMD", DrawableSurfaceView.VIEW_CMD_TYPE.UPDATE_GAUGE);
+        connectBundle.putString("IDENT", identifier);
+        connectBundle.putFloat("VAL", value);
+        msg.setData(connectBundle);
+        mDrawableThread.getHandler().sendMessage(msg);
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -166,18 +187,10 @@ public class MainActivity extends Activity {
         mDrawableThread.doStart();
 
 
-        // ECU Connect Button
-        mConnectButton = (Button) findViewById(R.id.connect_button);
-        mConnectButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                connect();
-            }
-        });
 
-        // PID Support Request Button
-        Button requestButton = (Button) findViewById(R.id.request_button);
-        requestButton.setOnClickListener(new View.OnClickListener() {
+        // Toggle Log Button
+        Button toggleLogButton = (Button) findViewById(R.id.toggle_log_button);
+        toggleLogButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 toggleCommView();
@@ -185,7 +198,7 @@ public class MainActivity extends Activity {
         });
 
         // ECU Connect Button
-        mConnectButton = (Button) findViewById(R.id.connect_button);
+        Button mConnectButton = (Button) findViewById(R.id.connect_button);
         mConnectButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -193,14 +206,41 @@ public class MainActivity extends Activity {
             }
         });
 
+        // Request PIDS Button
+        Button mRequestButton = (Button) findViewById(R.id.request_button);
+        mRequestButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //
+                // Add PID Request command here
+                //
+
+            }
+        });
+
         // Add Gauge Button
-        mAddGaugeButton = (Button) findViewById(R.id.add_gauge_button);
+        Button mAddGaugeButton = (Button) findViewById(R.id.add_gauge_button);
         mAddGaugeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Log.d("buttons", "add gauge button pressed!!");
-                mDrawableThread.addGauge("calc_eng_load");
-                mDrawableThread.updateGauge("calc_eng_load", (float)100.1);
+                sendAddGaugeCmd("calc_eng_load");
+            }
+        });
+        // Update Data Button
+        Button mUpdateDataButton = (Button) findViewById(R.id.update_button);
+        mUpdateDataButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                sendUpdateGaugeCmd("calc_eng_load", (float)99.9);
+            }
+        });
+        // Destroy Gauge Button
+        Button mDestroyGaugeButton = (Button) findViewById(R.id.destroy_button);
+        mDestroyGaugeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                sendDestroyGaugeCmd("calc_eng_load");
             }
         });
 

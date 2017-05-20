@@ -42,22 +42,40 @@
         android:layout_height="fill_parent"
         android:layout_gravity="end" >
         <Button
-            android:id="@+id/connect_button"
+            android:id="@+id/toggle_log_button"
             android:layout_width="fill_parent"
-            android:layout_height="100dp"
+            android:layout_height="60dp"
+            android:text="Toggle Log" />
+        <Button
+            android:id="@+id/connect_button"
+            android:layout_below="@id/toggle_log_button"
+            android:layout_width="fill_parent"
+            android:layout_height="60dp"
             android:text="ECU Connect" />
         <Button
             android:id="@+id/request_button"
             android:layout_below="@id/connect_button"
             android:layout_width="fill_parent"
-            android:layout_height="100dp"
+            android:layout_height="60dp"
             android:text="Request PIDs" />
         <Button
             android:id="@+id/add_gauge_button"
             android:layout_below="@id/request_button"
             android:layout_width="fill_parent"
-            android:layout_height="100dp"
-            android:text="add gauge" />
+            android:layout_height="60dp"
+            android:text="Add gauge" />
+        <Button
+            android:id="@+id/update_button"
+            android:layout_below="@id/add_gauge_button"
+            android:layout_width="fill_parent"
+            android:layout_height="60dp"
+            android:text="Update Data" />
+        <Button
+            android:id="@+id/destroy_button"
+            android:layout_below="@id/update_button"
+            android:layout_width="fill_parent"
+            android:layout_height="60dp"
+            android:text="Destroy Gauge" />
     </RelativeLayout>
 
 
