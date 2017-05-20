@@ -24,7 +24,7 @@ public class MainActivity extends Activity {
     // Status dialog
     AlertDialog statusDialog;
 
-    // For communicaton logging: listview, adapteer, and arraylist of strings
+    // For communicaton logging: listview, adapter, and arraylist of strings
     ListView commView;
     ArrayAdapter<String> commViewAdapter;
     ArrayList<String> commViewItems = new ArrayList<String>();
@@ -71,17 +71,14 @@ public class MainActivity extends Activity {
                         case ELM_REQUEST_DATA:
                             Log.d("MA", "ECU request data command response received");
                             break;
-
                         case ELM_REQUEST_SUPPORTED_PIDS:
                             Log.d("MA", "ECU Request supported PIDs response received");
                             break;
-
                         default:
                             Log.d("ELM327", "Unknown command type received");
                             break;
                     }
                 }
-
             }
             // Processing of communication log events
             else if (inputBundle.containsKey("COMM_STRING")) {
@@ -97,69 +94,32 @@ public class MainActivity extends Activity {
         }
     };
 
-
-    void sendElmConnectCmd(String addr) {
-        Bundle connectBundle = new Bundle();
-        Message msg = mELM327.getHandler().obtainMessage();
-        connectBundle.putSerializable("CMD", ELM327.CMD_TYPE.BT_ELM_CONNECT);
-        connectBundle.putString("DEVICE_ADDR", addr);
-        msg.setData(connectBundle);
-        mELM327.getHandler().sendMessage(msg);
-    }
-
-
-    void sendEcuConnectCmd() {
-        Bundle connectBundle = new Bundle();
-        Message msg = mELM327.getHandler().obtainMessage();
-        connectBundle.putSerializable("CMD", ELM327.CMD_TYPE.ECU_CONNECT);
-        msg.setData(connectBundle);
-        mELM327.getHandler().sendMessage(msg);
-    }
-
-    void sendAddGaugeCmd(String identifier) {
-        Bundle connectBundle = new Bundle();
-        Message msg = mDrawableThread.getHandler().obtainMessage();
-        connectBundle.putSerializable("CMD", DrawableSurfaceView.VIEW_CMD_TYPE.ADD_GAUGE);
-        connectBundle.putString("IDENT", identifier);
-        msg.setData(connectBundle);
-        mDrawableThread.getHandler().sendMessage(msg);
-    }
-
-    void sendDestroyGaugeCmd(String identifier) {
-        Bundle connectBundle = new Bundle();
-        Message msg = mDrawableThread.getHandler().obtainMessage();
-        connectBundle.putSerializable("CMD", DrawableSurfaceView.VIEW_CMD_TYPE.DESTROY_GAUGE);
-        connectBundle.putString("IDENT", identifier);
-        msg.setData(connectBundle);
-        mDrawableThread.getHandler().sendMessage(msg);
-    }
-
-
-
-    void sendUpdateGaugeCmd(String identifier, float value) {
-        Bundle connectBundle = new Bundle();
-        Message msg = mDrawableThread.getHandler().obtainMessage();
-        connectBundle.putSerializable("CMD", DrawableSurfaceView.VIEW_CMD_TYPE.UPDATE_GAUGE);
-        connectBundle.putString("IDENT", identifier);
-        connectBundle.putFloat("VAL", value);
-        msg.setData(connectBundle);
-        mDrawableThread.getHandler().sendMessage(msg);
-    }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        // tell system to use the layout defined in our XML file
         setContentView(R.layout.activity_main);
-
-        // get handles to the drawable surface from XML
+        /***********************************************
+         * DrawableSurfaceView and DrawableThread setup
+         ***********************************************/
+        // get handle to the DrawableSurfaceView XML
         mDrawableSurfaceView = (DrawableSurfaceView) findViewById(R.id.drawable_surface);
+        // get handle to the DrawableSurfaceView DrawableThread
+        mDrawableThread = mDrawableSurfaceView.getThread();
+        if (savedInstanceState == null) {
+            // initial launch
+            mDrawableThread.setState(DrawableSurfaceView.DrawableThread.STATE_READY);
+            Log.w(this.getClass().getName(), "SIS is null");
+        } else {
+            // restored
+            mDrawableThread.restoreState(savedInstanceState);
+            Log.w(this.getClass().getName(), "SIS is nonnull");
+        }
+        // start the thread
+        mDrawableThread.doStart();
 
-
-        // *************
-        // Communication logging items
-        // *************
+        /***********************************************
+         * Communication Logging
+         ***********************************************/
         // ListView for communication log display - default invisible
         commView = (ListView) findViewById(R.id.comm_view);
         commView.setVisibility(View.INVISIBLE);
@@ -169,25 +129,16 @@ public class MainActivity extends Activity {
         // Adapter places items (Strings) in listview
         commViewAdapter = new ArrayAdapter<String>(this, R.layout.log_item, R.id.item_text, commViewItems);
         commView.setAdapter(commViewAdapter);
-
-
         mELM327 = new ELM327(this, mHandler);
 
 
-        mDrawableThread = mDrawableSurfaceView.getThread();
-        if (savedInstanceState == null) {
-            // we were just launched: set up a new game
-            mDrawableThread.setState(DrawableSurfaceView.DrawableThread.STATE_READY);
-            Log.w(this.getClass().getName(), "SIS is null");
-        } else {
-            // we are being restored: resume a previous game
-            mDrawableThread.restoreState(savedInstanceState);
-            Log.w(this.getClass().getName(), "SIS is nonnull");
-        }
-        mDrawableThread.doStart();
 
 
 
+
+        /***********************************************
+         * Buttons
+         ***********************************************/
         // Toggle Log Button
         Button toggleLogButton = (Button) findViewById(R.id.toggle_log_button);
         toggleLogButton.setOnClickListener(new View.OnClickListener() {
@@ -196,7 +147,6 @@ public class MainActivity extends Activity {
                 toggleCommView();
             }
         });
-
         // ECU Connect Button
         Button mConnectButton = (Button) findViewById(R.id.connect_button);
         mConnectButton.setOnClickListener(new View.OnClickListener() {
@@ -205,19 +155,14 @@ public class MainActivity extends Activity {
                 connect();
             }
         });
-
         // Request PIDS Button
         Button mRequestButton = (Button) findViewById(R.id.request_button);
         mRequestButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //
                 // Add PID Request command here
-                //
-
             }
         });
-
         // Add Gauge Button
         Button mAddGaugeButton = (Button) findViewById(R.id.add_gauge_button);
         mAddGaugeButton.setOnClickListener(new View.OnClickListener() {
@@ -246,7 +191,76 @@ public class MainActivity extends Activity {
 
     }
 
+    /***********************************************
+     * COMMUNICATION: Messages to ELM327
+     ***********************************************/
+    // Construct and send message to initiate bluetooth ELM327 connection
+    void sendElmConnectCmd(String addr) {
+        Bundle connectBundle = new Bundle();
+        Message msg = mELM327.getHandler().obtainMessage();
+        connectBundle.putSerializable("CMD", ELM327.CMD_TYPE.BT_ELM_CONNECT);
+        connectBundle.putString("DEVICE_ADDR", addr);
+        msg.setData(connectBundle);
+        mELM327.getHandler().sendMessage(msg);
+    }
+    // Construct and send message to initiate ELM327 to ECU connection
+    void sendEcuConnectCmd() {
+        Bundle connectBundle = new Bundle();
+        Message msg = mELM327.getHandler().obtainMessage();
+        connectBundle.putSerializable("CMD", ELM327.CMD_TYPE.ECU_CONNECT);
+        msg.setData(connectBundle);
+        mELM327.getHandler().sendMessage(msg);
+    }
+
+    /***********************************************
+     * COMMUNICATION: Messages to DrawableThread
+     ***********************************************/
+    // Send message to add a gauge display object to the DrawableSurfaceView
+    void sendAddGaugeCmd(String identifier) {
+        Bundle connectBundle = new Bundle();
+        Message msg = mDrawableThread.getHandler().obtainMessage();
+        connectBundle.putSerializable("CMD", DrawableSurfaceView.VIEW_CMD_TYPE.ADD_GAUGE);
+        connectBundle.putString("IDENT", identifier);
+        msg.setData(connectBundle);
+        mDrawableThread.getHandler().sendMessage(msg);
+    }
+    // Send a message to destroy a DrawableSurfaceView gauge display object
+    void sendDestroyGaugeCmd(String identifier) {
+        Bundle connectBundle = new Bundle();
+        Message msg = mDrawableThread.getHandler().obtainMessage();
+        connectBundle.putSerializable("CMD", DrawableSurfaceView.VIEW_CMD_TYPE.DESTROY_GAUGE);
+        connectBundle.putString("IDENT", identifier);
+        msg.setData(connectBundle);
+        mDrawableThread.getHandler().sendMessage(msg);
+    }
+    // Send a message to update a DrawableSurfaceView gauge display object value
+    void sendUpdateGaugeCmd(String identifier, float value) {
+        Bundle connectBundle = new Bundle();
+        Message msg = mDrawableThread.getHandler().obtainMessage();
+        connectBundle.putSerializable("CMD", DrawableSurfaceView.VIEW_CMD_TYPE.UPDATE_GAUGE);
+        connectBundle.putString("IDENT", identifier);
+        connectBundle.putFloat("VAL", value);
+        msg.setData(connectBundle);
+        mDrawableThread.getHandler().sendMessage(msg);
+    }
+
+    /***********************************************
+     * Views and controls
+     ***********************************************/
+    // Toggle visibility of communication log display
+    void toggleCommView() {
+        if(commView.getVisibility() == View.INVISIBLE)
+            commView.setVisibility(View.VISIBLE);
+        else commView.setVisibility(View.INVISIBLE);
+    }
+
+
+    /***********************************************
+     * Connect to and status Bluetooth "OBDII" device
+     ***********************************************/
     void connect() {
+
+        // Create an AlertDialog
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Connection Status");
         builder.setMessage("Initialize connection");
@@ -272,14 +286,6 @@ public class MainActivity extends Activity {
         } else
             Log.d("MainActivity", "Error - no paired bluetooth devices");
     }
-
-    void toggleCommView() {
-        if(commView.getVisibility() == View.INVISIBLE)
-            commView.setVisibility(View.VISIBLE);
-        else commView.setVisibility(View.INVISIBLE);
-    }
-
-
 }
 
 
