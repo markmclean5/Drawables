@@ -29,6 +29,12 @@ public class MainActivity extends Activity {
     ArrayAdapter<String> commViewAdapter;
     ArrayList<String> commViewItems = new ArrayList<String>();
 
+
+    ListView pidList;
+    ArrayAdapter<String> pidListAdapter;
+    ArrayList<String> pidListItems = new ArrayList<String>();
+
+
     // Message handler: receives all messages coming into the main activity
     public Handler mHandler = new Handler(){   //handles the INcoming msgs
         @Override public void handleMessage(Message msg)
@@ -72,7 +78,13 @@ public class MainActivity extends Activity {
                             Log.d("MA", "ECU request data command response received");
                             break;
                         case ELM_REQUEST_SUPPORTED_PIDS:
-                            Log.d("MA", "ECU Request supported PIDs response received");
+                            String name = inputBundle.getString("NAME");
+                            if(!name.contains("PID")) {
+                                Log.d("MA", "ECU Request supported PIDs response received: " + name);
+                                pidListAdapter.add(name);
+                                pidListAdapter.notifyDataSetChanged();
+                            }
+
                             break;
                         default:
                             Log.d("ELM327", "Unknown command type received");
@@ -90,7 +102,6 @@ public class MainActivity extends Activity {
             else {
                 Log.d("MA", "Invalid message received");
             }
-
         }
     };
 
@@ -131,6 +142,22 @@ public class MainActivity extends Activity {
         commView.setAdapter(commViewAdapter);
         mELM327 = new ELM327(this, mHandler);
 
+        /***********************************************
+         * List of supported PIDs
+         ***********************************************/
+        // ListView containing supported PIDs - default visible
+        pidList = (ListView) findViewById(R.id.pid_view);
+        pidList.setVisibility(View.VISIBLE);
+        // Listview header - needs to be view, also before adapter
+        View pidListHeaderView  = View.inflate(this, R.layout.pid_list_header, null);
+        pidList.addHeaderView(pidListHeaderView);
+        // Adapter places items (Strings) in listview
+        pidListAdapter = new ArrayAdapter<String>(this, R.layout.pid_list_item, R.id.pid_list_item_text, pidListItems);
+        pidList.setAdapter(pidListAdapter);
+
+
+
+        mELM327 = new ELM327(this, mHandler);
 
 
 
@@ -161,6 +188,7 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View view) {
                 // Add PID Request command here
+                sendRequestSupportedPIDsCmd();
             }
         });
         // Add Gauge Button
@@ -211,6 +239,13 @@ public class MainActivity extends Activity {
         msg.setData(connectBundle);
         mELM327.getHandler().sendMessage(msg);
     }
+    void sendRequestSupportedPIDsCmd() {
+        Bundle requestBundle = new Bundle();
+        Message msg = mELM327.getHandler().obtainMessage();
+        requestBundle.putSerializable("CMD", ELM327.CMD_TYPE.ELM_REQUEST_SUPPORTED_PIDS);
+        msg.setData(requestBundle);
+        mELM327.getHandler().sendMessage(msg);
+    }
 
     /***********************************************
      * COMMUNICATION: Messages to DrawableThread
@@ -249,9 +284,15 @@ public class MainActivity extends Activity {
      ***********************************************/
     // Toggle visibility of communication log display
     void toggleCommView() {
-        if(commView.getVisibility() == View.INVISIBLE)
+        if(commView.getVisibility() == View.INVISIBLE) {
             commView.setVisibility(View.VISIBLE);
-        else commView.setVisibility(View.INVISIBLE);
+            pidList.setVisibility(View.INVISIBLE);
+        }
+
+        else {
+            commView.setVisibility(View.INVISIBLE);
+            pidList.setVisibility(View.VISIBLE);
+        }
     }
 
 

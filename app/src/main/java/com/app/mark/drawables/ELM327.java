@@ -12,6 +12,7 @@ import android.util.Log;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.UUID;
 
 /**
@@ -124,6 +125,10 @@ public class ELM327 extends Thread {
                         mDataRequestCmd = mBundle.getString("ELM_REQUEST_DATA");
                         Log.d("ELM327", "ECU request data command received: " + mDataRequestCmd);
                         break;
+                    case ELM_REQUEST_SUPPORTED_PIDS:
+                        mLatestCmd = CMD_TYPE.ELM_REQUEST_SUPPORTED_PIDS;
+                        Log.d("ELM327", "PID Support Request command received");
+                        break;
                     default:
                         Log.d("ELM327", "Unknown command type received");
                         break;
@@ -195,6 +200,14 @@ public class ELM327 extends Thread {
         sendMessage(b);
     }
 
+    // Send a response detailing results of ELM_REQUEST_SUPPORTED_PIDS
+    private void elmSupportedPIDsResp(String PIDName) {
+        Bundle b = new Bundle();
+        b.putSerializable("RESP", CMD_TYPE.ELM_REQUEST_SUPPORTED_PIDS);
+        b.putString("NAME", PIDName);
+        sendMessage(b);
+    }
+
     // Send a Bundle from thread in a Message using outHandler
     private void sendMessage(Bundle b) {
         Message msgOut = outHandler.obtainMessage();
@@ -206,7 +219,7 @@ public class ELM327 extends Thread {
     // send (string Data) - Send Data over Bluetooth!
     private void send(String Data) {
         if (btConnected) {
-            reportComm(Data);
+            reportComm("TX:" + Data);
             // Append with CR + NL
             Data += "\r\n";
             try {
@@ -247,7 +260,7 @@ public class ELM327 extends Thread {
                 e.printStackTrace();
             }
         } else Log.d("ELMThread", "receive error - called while disconnected");
-        reportComm(Data);
+        reportComm("RX:"+ Data);
         return Data;
     }
 
@@ -280,6 +293,32 @@ public class ELM327 extends Thread {
     public String request(String PID) {
         send(PID);
         return receive();
+    }
+
+    private int getSupportedPIDs() {
+        int numSupportedPIDs = 0;
+        PID Pid0100 = new PID(mContext, "0100");
+        Log.d("ELM327", "GetSupportedPIDs command" + Pid0100.getCommand());
+        String response = request(Pid0100.getCommand());
+        Log.d("ELM327", "GetSupportedPIDs response" + response);
+        Pid0100.update(response);
+        Pid0100.printData();
+        ArrayList<PID.Element> booleanElements = Pid0100.getAllElements();
+
+        for(PID.Element E : booleanElements) {
+            if (E.mType== PID.ElementType.BOOLEAN && E.mBoolState) {
+                Log.d("ELM327", "processing suported PID element" + E.mLongName);
+                Log.d("ELM327", "Corresponding command: " + E.mShortName);
+                PID p = new PID(mContext, E.mShortName);
+                ArrayList<PID.Element> el = p.getAllElements();
+                for(PID.Element e : el) {
+                    elmSupportedPIDsResp(e.mLongName);
+                }
+
+            }
+
+        }
+        return numSupportedPIDs;
     }
 
 
@@ -337,16 +376,18 @@ public class ELM327 extends Thread {
                     mLatestCmd = CMD_TYPE.NONE;             // Reset
                     break;
                 case ELM_REQUEST_DATA:
+                    mLatestCmd = CMD_TYPE.NONE;
+                    break;
+                case ELM_REQUEST_SUPPORTED_PIDS:
+                    int numSupportedPIDs = getSupportedPIDs();
+                    mLatestCmd = CMD_TYPE.NONE;
                     break;
                 default:
                     Log.d("ELMThread", "Run encountered invalid latest command case");
                     mLatestCmd = CMD_TYPE.NONE;             // Reset
                     break;
             }
-
-
-
-
+        }
 
 
 
@@ -416,4 +457,3 @@ public class ELM327 extends Thread {
         } */
         }
     }
-}

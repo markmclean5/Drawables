@@ -13,6 +13,7 @@ import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,7 +22,7 @@ public class PID {
     private enum PIDType{
         UNK, SUPPORT, PARAMETER
     }
-    private enum ElementType {
+    enum ElementType {
         NONE, BOOLEAN, VALUE, ENUM, SPARE
     }
     private Context mContext;
@@ -52,7 +53,7 @@ public class PID {
             // Support type PID - print out which elements are supported
             Log.d ("PID", "Support Type PID printout " + mMode + mCommand + " - " + mName + ":");
             for(Element E : ElementList) {
-                if(E.mType == ElementType.BOOLEAN && E.mBoolState == true) {
+                if(E.mType == ElementType.BOOLEAN && E.mBoolState) {
                     Log.d("PID", "    " + E.mShortName + " - " + E.mLongName);
                 }
             }
@@ -74,6 +75,16 @@ public class PID {
 
     }
 
+    public int getNumElements() {
+        return ElementList.size();
+    }
+    public ArrayList<Element> getAllElements(){
+        ArrayList<Element> elements = new ArrayList<>();
+        for(Element E : ElementList) {
+            elements.add(E);
+        }
+        return elements;
+    }
 
 
 
@@ -89,13 +100,13 @@ public class PID {
         boolean validResponse = true;
         String modeResp = "4" + mMode.substring(1);
         String data = "";
-        String expectedResp = mMode + mCommand + modeResp + mCommand;
+        String expectedResp = modeResp + mCommand;
         if(!response.startsWith(expectedResp)){
             Log.d("PID", "Error - update response unexpected chars");
             validResponse = false;
         }
         else {
-            int dataStartPos = 2*(mMode.length() + mCommand.length());
+            int dataStartPos = mMode.length() + mCommand.length();
             data = response.substring(dataStartPos-1);
             if(data.length() < mNumBytes*2) {
                 Log.d("PID", "Error - update response too short");
@@ -283,7 +294,7 @@ public class PID {
             - Enumeration
             - Spare
         ------------------------------ */
-    private class Element {
+    public class Element {
         // Element properties - applicable to all types of elements
         ElementType mType;
         String mStartPosition;          // ex - B7
