@@ -746,5 +746,202 @@
             <offset>-100.0</offset>
         </element1>
     </pid_0106>
-
+    
+    <!-- PID 0107 -->
+    <pid_0107>
+        <name>Long Term Fuel Trim Bank 1</name>
+        <type>parameter</type>
+        <num_bytes>1</num_bytes>
+        <num_elements>1</num_elements>
+        <mode>01</mode>
+        <command>07</command>
+        <element1>
+            <type>value</type>
+            <position>A7</position>
+            <num_bits>8</num_bits>
+            <short_name>LTFT_B1</short_name>
+            <long_name>Long Term Fuel Trim Bank 1</long_name>
+            <min>-100</min>
+            <max>99.2</max>
+            <units>%</units>
+            <scaling>0.78125</scaling>
+            <offset>-100.0</offset>
+        </element1>
+    </pid_0107>
+    
+    <!-- PID 0108 -->
+    <pid_0108>
+        <name>Short Term Fuel Trim Bank 2</name>
+        <type>parameter</type>
+        <num_bytes>1</num_bytes>
+        <num_elements>1</num_elements>
+        <mode>01</mode>
+        <command>08</command>
+        <element1>
+            <type>value</type>
+            <position>A7</position>
+            <num_bits>8</num_bits>
+            <short_name>STFT_B2</short_name>
+            <long_name>Short Term Fuel Trim Bank 2</long_name>
+            <min>-100</min>
+            <max>99.2</max>
+            <units>%</units>
+            <scaling>0.78125</scaling>
+            <offset>-100.0</offset>
+        </element1>
+    </pid_0108>
+    
+    <!-- PID 0109 -->
+    <pid_0109>
+        <name>Long Term Fuel Trim Bank 2</name>
+        <type>parameter</type>
+        <num_bytes>1</num_bytes>
+        <num_elements>1</num_elements>
+        <mode>01</mode>
+        <command>09</command>
+        <element1>
+            <type>value</type>
+            <position>A7</position>
+            <num_bits>8</num_bits>
+            <short_name>LTFT_B2</short_name>
+            <long_name>Long Term Fuel Trim Bank 2</long_name>
+            <min>-100</min>
+            <max>99.2</max>
+            <units>%</units>
+            <scaling>0.78125</scaling>
+            <offset>-100.0</offset>
+        </element1>
+    </pid_0109>
+    
+    <!-- PID 010A -->
+    <pid_010A>
+        <name>Fuel Pressure (gauge)</name>
+        <type>parameter</type>
+        <num_bytes>1</num_bytes>
+        <num_elements>1</num_elements>
+        <mode>01</mode>
+        <command>0A</command>
+        <element1>
+            <type>value</type>
+            <position>A7</position>
+            <num_bits>8</num_bits>
+            <short_name>FUEL_PRES</short_name>
+            <long_name>Fuel Pressure (gauge)</long_name>
+            <min>0</min>
+            <max>765</max>
+            <units>kPa</units>
+            <scaling>3.0</scaling>
+            <offset>0.0</offset>
+        </element1>
+    </pid_010A>
+    
+    <!-- PID 010B -->
+    <pid_010B>
+        <name>Intake Manifold Absolute Pressure</name>
+        <type>parameter</type>
+        <num_bytes>1</num_bytes>
+        <num_elements>1</num_elements>
+        <mode>01</mode>
+        <command>0B</command>
+        <element1>
+            <type>value</type>
+            <position>A7</position>
+            <num_bits>8</num_bits>
+            <short_name>INTAKE_MAP</short_name>
+            <long_name>Intake Manifold Abs Pressure</long_name>
+            <min>0</min>
+            <max>255</max>
+            <units>kPa</units>
+            <scaling>1.0</scaling>
+            <offset>0.0</offset>
+        </element1>
+    </pid_010B>
+    
+    <!-- PID 010C -->
+    <pid_010C>
+        <name>Engine RPM</name>
+        <type>parameter</type>
+        <num_bytes>1</num_bytes>
+        <num_elements>1</num_elements>
+        <mode>01</mode>
+        <command>0C</command>
+        <element1>
+            <type>value</type>
+            <position>A7</position>
+            <num_bits>16</num_bits>
+            <short_name>ENG_RPM</short_name>
+            <long_name>Engine RPM</long_name>
+            <min>0</min>
+            <max>16383.75</max>
+            <units>rpm</units>
+            <scaling>0.25</scaling>
+            <offset>0.0</offset>
+        </element1>
+    </pid_010C>
+    
+    <!-- PID 010D -->
+    <pid_010D>
+        <name>Vehicle Speed</name>
+        <type>parameter</type>
+        <num_bytes>1</num_bytes>
+        <num_elements>1</num_elements>
+        <mode>01</mode>
+        <command>0D</command>
+        <element1>
+            <type>value</type>
+            <position>A7</position>
+            <num_bits>8</num_bits>
+            <short_name>VEH_SPD</short_name>
+            <long_name>Vehicle Speed</long_name>
+            <min>0</min>
+            <max>255</max>
+            <units>km/h</units>
+            <scaling>1.0</scaling>
+            <offset>0.0</offset>
+        </element1>
+    </pid_010D>
+    
+    <!-- PID 010E -->
+    <pid_010E>
+        <name>Timing Advance</name>
+        <type>parameter</type>
+        <num_bytes>1</num_bytes>
+        <num_elements>1</num_elements>
+        <mode>01</mode>
+        <command>0E</command>
+        <element1>
+            <type>value</type>
+            <position>A7</position>
+            <num_bits>8</num_bits>
+            <short_name>TIMING_ADV</short_name>
+            <long_name>Timing Advance</long_name>
+            <min>-64</min>
+            <max>63.5</max>
+            <units>deg</units>
+            <scaling>0.5</scaling>
+            <offset>-64.0</offset>
+        </element1>
+    </pid_010E>
+    
+    <!-- PID 010F -->
+    <pid_010F>
+        <name>Intake Air Temperature</name>
+        <type>parameter</type>
+    <num_bytes>1</num_bytes>
+        <num_elements>1</num_elements>
+        <mode>01</mode>
+        <command>0F</command>
+        <element1>
+            <type>value</type>
+            <position>A7</position>
+            <num_bits>8</num_bits>
+            <short_name>INTAKE_AIR_TEMP</short_name>
+            <long_name>Intake Air Temperature</long_name>
+            <min>-40</min>
+            <max>215</max>
+            <units>deg C</units>
+            <scaling>1.0</scaling>
+            <offset>-40.0</offset>
+        </element1>
+    </pid_010F>
 </pids>
