@@ -45,6 +45,10 @@ public class ELM327 extends Thread {
     private InputStream mBTinStream;                        // InputStream for bluetooth communication
     private OutputStream mBToutStream;                      // OutputStream for bluetooth communication
 
+    private ArrayList<PID> supportedPIDs = new ArrayList<>(); // All supported PIDs in one location
+
+
+
     private boolean btConnect(String deviceAddress) {
         // Connect to ELM327
         // TODO save deviceAddress
@@ -297,24 +301,42 @@ public class ELM327 extends Thread {
 
     private int getSupportedPIDs() {
         int numSupportedPIDs = 0;
-        PID Pid0100 = new PID(mContext, "0100");
-        Log.d("ELM327", "GetSupportedPIDs command" + Pid0100.getCommand());
-        String response = request(Pid0100.getCommand());
-        Log.d("ELM327", "GetSupportedPIDs response" + response);
-        Pid0100.update(response);
-        Pid0100.printData();
-        ArrayList<PID.Element> booleanElements = Pid0100.getAllElements();
-
-        for(PID.Element E : booleanElements) {
-            if (E.mType== PID.ElementType.BOOLEAN && E.mBoolState) {
-                Log.d("ELM327", "processing suported PID element" + E.mLongName);
-                Log.d("ELM327", "Corresponding command: " + E.mShortName);
-                PID p = new PID(mContext, E.mShortName);
-                ArrayList<PID.Element> el = p.getAllElements();
-                for(PID.Element e : el) {
-                    elmSupportedPIDsResp(e.mLongName);
+        boolean complete = false;
+        String requestString = "0100";
+        while(!complete) {
+            PID Pid0100 = new PID(mContext, requestString);
+            Log.d("ELM327", "GetSupportedPIDs command" + Pid0100.getCommand());
+            String response = request(Pid0100.getCommand());
+            Log.d("ELM327", "GetSupportedPIDs response" + response);
+            Pid0100.update(response);
+            Pid0100.printData();
+            ArrayList<PID.Element> supportPidElements = Pid0100.getAllElements();
+            boolean continueRequests = false;
+            for(PID.Element E : supportPidElements) {
+                if(E.mType==PID.ElementType.BOOLEAN)
+                {
+                    continueRequests = E.mBoolState;
+                    if(E.mBoolState) {
+                        Log.d("ELM327", "processing suported PID element" + E.mLongName);
+                        Log.d("ELM327", "Corresponding command: " + E.mShortName);
+                        PID p = new PID(mContext, E.mShortName);
+                        ArrayList<PID.Element> el = p.getAllElements();
+                        for(PID.Element e : el) {
+                            // Send message of supported element
+                            elmSupportedPIDsResp(e.mLongName);
+                        }
+                        // Add supported PID to ArrayList of supported PIDs
+                        supportedPIDs.add(p);
+                    }
                 }
-
+            }
+            if(continueRequests && requestString.charAt(2) < '4') {
+                StringBuilder sb = new StringBuilder(requestString);
+                sb.setCharAt(2, (char)((int)requestString.charAt(2) + 2));  // 0100,0120,0140
+                requestString = sb.toString();
+            }
+            else {
+                complete = true;
             }
 
         }
@@ -389,71 +411,5 @@ public class ELM327 extends Thread {
             }
         }
 
-
-
-
-
-
-
-
-            /*
-            if(mBTconn == REQUESTED) {
-                mBTconn = CONNECTING;
-                connect(mBluetoothAddr);
-            } else if(mBTconn == CONNECTED){
-                if(mDataRequest == READY) {
-                    reset();
-                    setProtoAuto();
-                    request("0100");
-                    mDataRequest = NOT_READY;
-                    displayProto();
-
-                    PID Pid0100 = new PID(mContext, "0100");
-                    String data = request(Pid0100.getCommand());
-                    Pid0100.update(data);
-                    Pid0100.printData();
-
-                    PID Pid0120 = new PID(mContext, "0120");
-                    data = request(Pid0120.getCommand());
-                    Pid0120.update(data);
-                    Pid0120.printData();
-
-                    PID Pid0140 = new PID(mContext, "0140");
-                    data = request(Pid0140.getCommand());
-                    Pid0140.update(data);
-                    Pid0140.printData();
-
-
-                    PID Pid0101 = new PID(mContext, "0101");
-                    data = request(Pid0101.getCommand());
-                    Pid0101.update(data);
-                    Pid0101.printData();
-
-                    PID Pid0103 = new PID(mContext, "0103");
-                    data = request(Pid0103.getCommand());
-                    Pid0103.update(data);
-                    Pid0103.printData();
-
-                    PID Pid0104 = new PID(mContext, "0104");
-                    data = request(Pid0104.getCommand());
-                    Pid0104.update(data);
-                    Pid0104.printData();
-
-                    PID Pid0105 = new PID(mContext, "0105");
-                    data = request(Pid0105.getCommand());
-                    Pid0105.update(data);
-                    Pid0105.printData();
-
-                    PID Pid0106 = new PID(mContext, "0106");
-                    data = request(Pid0106.getCommand());
-                    Pid0106.update(data);
-                    Pid0106.printData();
-
-
-                    Log.d("ELM327", "PID update completed");
-                }
-
-            }
-        } */
         }
     }

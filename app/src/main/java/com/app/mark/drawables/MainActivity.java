@@ -17,22 +17,24 @@ import android.widget.ListView;
 
 public class MainActivity extends Activity {
 
-    private DrawableSurfaceView.DrawableThread mDrawableThread;
+    // Main objects: graphics, ELM327, threads
     private DrawableSurfaceView mDrawableSurfaceView;
+    private DrawableSurfaceView.DrawableThread mDrawableThread;
     private ELM327 mELM327;
 
     // Status dialog
     AlertDialog statusDialog;
 
     // For communicaton logging: listview, adapter, and arraylist of strings
-    ListView commView;
-    ArrayAdapter<String> commViewAdapter;
-    ArrayList<String> commViewItems = new ArrayList<String>();
+    ListView commLogListView;
+    ArrayAdapter<String> commLogAdapter;
+    ArrayList<String> commLogItems = new ArrayList<String>();
 
 
-    ListView pidList;
-    ArrayAdapter<String> pidListAdapter;
-    ArrayList<String> pidListItems = new ArrayList<String>();
+    // For list of supported parameters (elements of supported PIDs)
+    ListView parameterListView;
+    ArrayAdapter<String> parameterListAdapter;
+    ArrayList<String> parameterListItems = new ArrayList<String>();
 
 
     // Message handler: receives all messages coming into the main activity
@@ -81,8 +83,8 @@ public class MainActivity extends Activity {
                             String name = inputBundle.getString("NAME");
                             if(!name.contains("PID")) {
                                 Log.d("MA", "ECU Request supported PIDs response received: " + name);
-                                pidListAdapter.add(name);
-                                pidListAdapter.notifyDataSetChanged();
+                                parameterListAdapter.add(name);
+                                parameterListAdapter.notifyDataSetChanged();
                             }
 
                             break;
@@ -95,8 +97,8 @@ public class MainActivity extends Activity {
             // Processing of communication log events
             else if (inputBundle.containsKey("COMM_STRING")) {
                 Log.d("MA","Comm string received");
-                commViewAdapter.add(inputBundle.getString("COMM_STRING"));
-                commViewAdapter.notifyDataSetChanged();
+                commLogAdapter.add(inputBundle.getString("COMM_STRING"));
+                commLogAdapter.notifyDataSetChanged();
             }
             // Error case
             else {
@@ -109,9 +111,9 @@ public class MainActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        /***********************************************
+        /* **********************************************
          * DrawableSurfaceView and DrawableThread setup
-         ***********************************************/
+         * **********************************************/
         // get handle to the DrawableSurfaceView XML
         mDrawableSurfaceView = (DrawableSurfaceView) findViewById(R.id.drawable_surface);
         // get handle to the DrawableSurfaceView DrawableThread
@@ -128,32 +130,36 @@ public class MainActivity extends Activity {
         // start the thread
         mDrawableThread.doStart();
 
-        /***********************************************
+        /* **********************************************
+         * ELM327 setup
+         * **********************************************/
+        mELM327 = new ELM327(this, mHandler);
+
+        /* **********************************************
          * Communication Logging
          ***********************************************/
         // ListView for communication log display - default invisible
-        commView = (ListView) findViewById(R.id.comm_view);
-        commView.setVisibility(View.INVISIBLE);
+        commLogListView = (ListView) findViewById(R.id.comm_view);
+        commLogListView.setVisibility(View.INVISIBLE);
         // Listview header - needs to be view, also before adapter
         View commViewHeaderView  = View.inflate(this, R.layout.log_header, null);
-        commView.addHeaderView(commViewHeaderView);
+        commLogListView.addHeaderView(commViewHeaderView);
         // Adapter places items (Strings) in listview
-        commViewAdapter = new ArrayAdapter<String>(this, R.layout.log_item, R.id.item_text, commViewItems);
-        commView.setAdapter(commViewAdapter);
-        mELM327 = new ELM327(this, mHandler);
+        commLogAdapter = new ArrayAdapter<String>(this, R.layout.log_item, R.id.item_text, commLogItems);
+        commLogListView.setAdapter(commLogAdapter);
 
         /***********************************************
          * List of supported PIDs
          ***********************************************/
         // ListView containing supported PIDs - default visible
-        pidList = (ListView) findViewById(R.id.pid_view);
-        pidList.setVisibility(View.VISIBLE);
+        parameterListView = (ListView) findViewById(R.id.pid_view);
+        parameterListView.setVisibility(View.VISIBLE);
         // Listview header - needs to be view, also before adapter
         View pidListHeaderView  = View.inflate(this, R.layout.pid_list_header, null);
-        pidList.addHeaderView(pidListHeaderView);
+        parameterListView.addHeaderView(pidListHeaderView);
         // Adapter places items (Strings) in listview
-        pidListAdapter = new ArrayAdapter<String>(this, R.layout.pid_list_item, R.id.pid_list_item_text, pidListItems);
-        pidList.setAdapter(pidListAdapter);
+        parameterListAdapter = new ArrayAdapter<String>(this, R.layout.pid_list_item, R.id.pid_list_item_text, parameterListItems);
+        parameterListView.setAdapter(parameterListAdapter);
 
 
 
@@ -163,9 +169,9 @@ public class MainActivity extends Activity {
 
 
 
-        /***********************************************
+        /* **********************************************
          * Buttons
-         ***********************************************/
+         * **********************************************/
         // Toggle Log Button
         Button toggleLogButton = (Button) findViewById(R.id.toggle_log_button);
         toggleLogButton.setOnClickListener(new View.OnClickListener() {
@@ -284,14 +290,14 @@ public class MainActivity extends Activity {
      ***********************************************/
     // Toggle visibility of communication log display
     void toggleCommView() {
-        if(commView.getVisibility() == View.INVISIBLE) {
-            commView.setVisibility(View.VISIBLE);
-            pidList.setVisibility(View.INVISIBLE);
+        if(commLogListView.getVisibility() == View.INVISIBLE) {
+            commLogListView.setVisibility(View.VISIBLE);
+            parameterListView.setVisibility(View.INVISIBLE);
         }
 
         else {
-            commView.setVisibility(View.INVISIBLE);
-            pidList.setVisibility(View.VISIBLE);
+            commLogListView.setVisibility(View.INVISIBLE);
+            parameterListView.setVisibility(View.VISIBLE);
         }
     }
 
