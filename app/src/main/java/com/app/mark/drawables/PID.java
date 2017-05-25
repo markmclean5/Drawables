@@ -19,7 +19,7 @@ import java.util.List;
 
 
 public class PID {
-    private enum PIDType{
+    enum PIDType{
         UNK, SUPPORT, PARAMETER
     }
     enum ElementType {

@@ -321,10 +321,14 @@ public class ELM327 extends Thread {
                         Log.d("ELM327", "Corresponding command: " + E.mShortName);
                         PID p = new PID(mContext, E.mShortName);
                         ArrayList<PID.Element> el = p.getAllElements();
-                        for(PID.Element e : el) {
-                            // Send message of supported element
-                            elmSupportedPIDsResp(e.mLongName);
+                        if(p.mType != PID.PIDType.SUPPORT) {
+                            for(PID.Element e : el) {
+                                // Send message of supported element
+                                Log.d("ELM327", " --- element name: " + e.mLongName);
+                                elmSupportedPIDsResp(e.mLongName);
+                            }
                         }
+
                         // Add supported PID to ArrayList of supported PIDs
                         supportedPIDs.add(p);
                     }

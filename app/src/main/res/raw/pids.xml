@@ -861,7 +861,7 @@
     <pid_010C>
         <name>Engine RPM</name>
         <type>parameter</type>
-        <num_bytes>1</num_bytes>
+        <num_bytes>2</num_bytes>
         <num_elements>1</num_elements>
         <mode>01</mode>
         <command>0C</command>
@@ -944,4 +944,415 @@
             <offset>-40.0</offset>
         </element1>
     </pid_010F>
+
+
+    <!-- PID 0110 -->
+    <pid_0110>
+    <name>MAF Air Flow Rate</name>
+    <type>parameter</type>
+    <num_bytes>2</num_bytes>
+    <num_elements>1</num_elements>
+    <mode>01</mode>
+    <command>10</command>
+    <element1>
+        <type>value</type>
+        <position>A7</position>
+        <num_bits>16</num_bits>
+        <short_name>MAF_AFR</short_name>
+        <long_name>Intake Air Temperature</long_name>
+        <min>0</min>
+        <max>655.35</max>
+        <units>g/sec</units>
+        <scaling>0.25</scaling>
+        <offset>0.0</offset>
+    </element1>
+    </pid_0110>
+
+    <!-- PID 0111 -->
+    <pid_0111>
+        <name>Throttle Position</name>
+        <type>parameter</type>
+        <num_bytes>2</num_bytes>
+        <num_elements>1</num_elements>
+        <mode>01</mode>
+        <command>11</command>
+        <element1>
+            <type>value</type>
+            <position>A7</position>
+            <num_bits>16</num_bits>
+            <short_name>THROT_POSN</short_name>
+            <long_name>Throttle Position</long_name>
+            <min>0</min>
+            <max>100</max>
+            <units>%</units>
+            <scaling>0.392156</scaling>
+            <offset>0.0</offset>
+        </element1>
+    </pid_0111>
+
+    <!-- PID 0112 -->
+    <pid_0112>
+        <name>Commd. Secondary Air Status</name>
+        <type>parameter</type>
+        <num_bytes>1</num_bytes>
+        <num_elements>8</num_elements>
+        <mode>01</mode>
+        <command>12</command>
+        <element1>
+            <type>enum</type>
+            <position>A7</position>
+            <num_bits>7</num_bits>
+            <short_name>CMD_SEC_AIR_STS</short_name>
+            <long_name>Commd. Secondary Air Status</long_name>
+            <num_states>4</num_states>
+            <enum_1_value>1</enum_1_value>
+            <enum_1_state>Upstream</enum_1_state>
+            <enum_2_value>2</enum_2_value>
+            <enum_2_state>Downstream of catalytic converter</enum_2_state>
+            <enum_3_value>4</enum_3_value>
+            <enum_3_state>From the outside atmosphere/off</enum_3_state>
+            <enum_4_value>8</enum_4_value>
+            <enum_4_state>Pump commanded on for diag</enum_4_state>
+            <enum_invalid_state>INVALID</enum_invalid_state>
+        </element1>
+    </pid_0112>
+
+    <!-- PID 0113 -->
+    <pid_0113>
+        <name>Oxygen Sensors Present</name>
+        <type>parameter</type>
+        <num_bytes>1</num_bytes>
+        <num_elements>8</num_elements>
+        <mode>01</mode>
+        <command>13</command>
+        <element1>
+            <type>boolean</type>
+            <position>A0</position>
+            <short_name>B1_S1_PRESENT</short_name>
+            <long_name>Bank 1 Sensor 1 Present</long_name>
+        </element1>
+        <element2>
+            <type>boolean</type>
+            <position>A1</position>
+            <short_name>B1_S2_PRESENT</short_name>
+            <long_name>Bank 1 Sensor 2 Present</long_name>
+        </element2>
+        <element3>
+            <type>boolean</type>
+            <position>A2</position>
+            <short_name>B1_S3_PRESENT</short_name>
+            <long_name>Bank 1 Sensor 3 Present</long_name>
+        </element3>
+        <element4>
+            <type>boolean</type>
+            <position>A3</position>
+            <short_name>B1_S4_PRESENT</short_name>
+            <long_name>Bank 1 Sensor 4 Present</long_name>
+        </element4>
+        <element5>
+            <type>boolean</type>
+            <position>A4</position>
+            <short_name>B2_S1_PRESENT</short_name>
+            <long_name>Bank 2 Sensor 1 Present</long_name>
+        </element5>
+        <element6>
+            <type>boolean</type>
+            <position>A5</position>
+            <short_name>B2_S2_PRESENT</short_name>
+            <long_name>Bank 2 Sensor 2 Present</long_name>
+        </element6>
+        <element7>
+            <type>boolean</type>
+            <position>A6</position>
+            <short_name>B2_S3_PRESENT</short_name>
+            <long_name>Bank 2 Sensor 3 Present</long_name>
+        </element7>
+        <element8>
+            <type>boolean</type>
+            <position>A7</position>
+            <short_name>B2_S4_PRESENT</short_name>
+            <long_name>Bank 2 Sensor 4 Present</long_name>
+        </element8>
+    </pid_0113>
+
+    <!-- PID 0114 -->
+    <pid_0114>
+        <name>O2 Sens 1 V + STFT</name>
+        <type>parameter</type>
+        <num_bytes>2</num_bytes>
+        <num_elements>2</num_elements>
+        <mode>01</mode>
+        <command>14</command>
+        <element1>
+            <type>value</type>
+            <position>A7</position>
+            <num_bits>8</num_bits>
+            <short_name>O2_SENS_1_V</short_name>
+            <long_name>O2 Sensor 1 Voltage</long_name>
+            <min>0</min>
+            <max>1.275</max>
+            <units>V</units>
+            <scaling>.005</scaling>
+            <offset>0.0</offset>
+        </element1>
+        <element2>
+            <type>value</type>
+            <position>B7</position>
+            <num_bits>8</num_bits>
+            <short_name>O2_SENS_1_STFT</short_name>
+            <long_name>O2 Sensor 1 STFT</long_name>
+            <min>-100</min>
+            <max>99.2</max>
+            <units>%</units>
+            <scaling>0.78125</scaling>
+            <offset>-100.0</offset>
+        </element2>
+    </pid_0114>
+
+    <!-- PID 0115 -->
+    <pid_0115>
+        <name>O2 Sens 2 V + STFT</name>
+        <type>parameter</type>
+        <num_bytes>2</num_bytes>
+        <num_elements>2</num_elements>
+        <mode>01</mode>
+        <command>15</command>
+        <element1>
+            <type>value</type>
+            <position>A7</position>
+            <num_bits>8</num_bits>
+            <short_name>O2_SENS_2_V</short_name>
+            <long_name>O2 Sensor 2 Voltage</long_name>
+            <min>0</min>
+            <max>1.275</max>
+            <units>V</units>
+            <scaling>.005</scaling>
+            <offset>0.0</offset>
+        </element1>
+        <element2>
+            <type>value</type>
+            <position>B7</position>
+            <num_bits>8</num_bits>
+            <short_name>O2_SENS_2_STFT</short_name>
+            <long_name>O2 Sensor 2 STFT</long_name>
+            <min>-100</min>
+            <max>99.2</max>
+            <units>%</units>
+            <scaling>0.78125</scaling>
+            <offset>-100.0</offset>
+        </element2>
+    </pid_0115>
+
+    <!-- PID 0116 -->
+    <pid_0116>
+        <name>O2 Sens 3 V + STFT</name>
+        <type>parameter</type>
+        <num_bytes>2</num_bytes>
+        <num_elements>2</num_elements>
+        <mode>01</mode>
+        <command>16</command>
+        <element1>
+            <type>value</type>
+            <position>A7</position>
+            <num_bits>8</num_bits>
+            <short_name>O2_SENS_3_V</short_name>
+            <long_name>O2 Sensor 3 Voltage</long_name>
+            <min>0</min>
+            <max>1.275</max>
+            <units>V</units>
+            <scaling>.005</scaling>
+            <offset>0.0</offset>
+        </element1>
+        <element2>
+            <type>value</type>
+            <position>B7</position>
+            <num_bits>8</num_bits>
+            <short_name>O2_SENS_3_STFT</short_name>
+            <long_name>O2 Sensor 3 STFT</long_name>
+            <min>-100</min>
+            <max>99.2</max>
+            <units>%</units>
+            <scaling>0.78125</scaling>
+            <offset>-100.0</offset>
+        </element2>
+    </pid_0116>
+
+    <!-- PID 0117 -->
+    <pid_0117>
+        <name>O2 Sens 4 V + STFT</name>
+        <type>parameter</type>
+        <num_bytes>2</num_bytes>
+        <num_elements>2</num_elements>
+        <mode>01</mode>
+        <command>17</command>
+        <element1>
+            <type>value</type>
+            <position>A7</position>
+            <num_bits>8</num_bits>
+            <short_name>O2_SENS_4_V</short_name>
+            <long_name>O2 Sensor 4 Voltage</long_name>
+            <min>0</min>
+            <max>1.275</max>
+            <units>V</units>
+            <scaling>.005</scaling>
+            <offset>0.0</offset>
+        </element1>
+        <element2>
+            <type>value</type>
+            <position>B7</position>
+            <num_bits>8</num_bits>
+            <short_name>O2_SENS_3_STFT</short_name>
+            <long_name>O2 Sensor 3 STFT</long_name>
+            <min>-100</min>
+            <max>99.2</max>
+            <units>%</units>
+            <scaling>0.78125</scaling>
+            <offset>-100.0</offset>
+        </element2>
+    </pid_0117>
+
+
+    <!-- PID 0118 -->
+    <pid_0118>
+        <name>O2 Sens 5 V + STFT</name>
+        <type>parameter</type>
+        <num_bytes>2</num_bytes>
+        <num_elements>2</num_elements>
+        <mode>01</mode>
+        <command>18</command>
+        <element1>
+            <type>value</type>
+            <position>A7</position>
+            <num_bits>8</num_bits>
+            <short_name>O2_SENS_5_V</short_name>
+            <long_name>O2 Sensor 5 Voltage</long_name>
+            <min>0</min>
+            <max>1.275</max>
+            <units>V</units>
+            <scaling>.005</scaling>
+            <offset>0.0</offset>
+        </element1>
+        <element2>
+            <type>value</type>
+            <position>B7</position>
+            <num_bits>8</num_bits>
+            <short_name>O2_SENS_5_STFT</short_name>
+            <long_name>O2 Sensor 5 STFT</long_name>
+            <min>-100</min>
+            <max>99.2</max>
+            <units>%</units>
+            <scaling>0.78125</scaling>
+            <offset>-100.0</offset>
+        </element2>
+    </pid_0118>
+
+
+    <!-- PID 0119 -->
+    <pid_0119>
+        <name>O2 Sens 6 V + STFT</name>
+        <type>parameter</type>
+        <num_bytes>2</num_bytes>
+        <num_elements>2</num_elements>
+        <mode>01</mode>
+        <command>19</command>
+        <element1>
+            <type>value</type>
+            <position>A7</position>
+            <num_bits>8</num_bits>
+            <short_name>O2_SENS_6_V</short_name>
+            <long_name>O2 Sensor 6 Voltage</long_name>
+            <min>0</min>
+            <max>1.275</max>
+            <units>V</units>
+            <scaling>.005</scaling>
+            <offset>0.0</offset>
+        </element1>
+        <element2>
+            <type>value</type>
+            <position>B7</position>
+            <num_bits>8</num_bits>
+            <short_name>O2_SENS_6_STFT</short_name>
+            <long_name>O2 Sensor 6 STFT</long_name>
+            <min>-100</min>
+            <max>99.2</max>
+            <units>%</units>
+            <scaling>0.78125</scaling>
+            <offset>-100.0</offset>
+        </element2>
+    </pid_0119>
+
+    <!-- PID 011A -->
+    <pid_011A>
+        <name>O2 Sens 7 V + STFT</name>
+        <type>parameter</type>
+        <num_bytes>2</num_bytes>
+        <num_elements>2</num_elements>
+        <mode>01</mode>
+        <command>1A</command>
+        <element1>
+            <type>value</type>
+            <position>A7</position>
+            <num_bits>8</num_bits>
+            <short_name>O2_SENS_7_V</short_name>
+            <long_name>O2 Sensor 7 Voltage</long_name>
+            <min>0</min>
+            <max>1.275</max>
+            <units>V</units>
+            <scaling>.005</scaling>
+            <offset>0.0</offset>
+        </element1>
+        <element2>
+            <type>value</type>
+            <position>B7</position>
+            <num_bits>8</num_bits>
+            <short_name>O2_SENS_7_STFT</short_name>
+            <long_name>O2 Sensor 7 STFT</long_name>
+            <min>-100</min>
+            <max>99.2</max>
+            <units>%</units>
+            <scaling>0.78125</scaling>
+            <offset>-100.0</offset>
+        </element2>
+    </pid_011A>
+
+    <!-- PID 011B -->
+    <pid_011B>
+        <name>O2 Sens 8 V + STFT</name>
+        <type>parameter</type>
+        <num_bytes>2</num_bytes>
+        <num_elements>2</num_elements>
+        <mode>01</mode>
+        <command>1B</command>
+        <element1>
+            <type>value</type>
+            <position>A7</position>
+            <num_bits>8</num_bits>
+            <short_name>O2_SENS_8_V</short_name>
+            <long_name>O2 Sensor 8 Voltage</long_name>
+            <min>0</min>
+            <max>1.275</max>
+            <units>V</units>
+            <scaling>.005</scaling>
+            <offset>0.0</offset>
+        </element1>
+        <element2>
+            <type>value</type>
+            <position>B7</position>
+            <num_bits>8</num_bits>
+            <short_name>O2_SENS_8_STFT</short_name>
+            <long_name>O2 Sensor 8 STFT</long_name>
+            <min>-100</min>
+            <max>99.2</max>
+            <units>%</units>
+            <scaling>0.78125</scaling>
+            <offset>-100.0</offset>
+        </element2>
+    </pid_011B>
+
+    <!-- PID 011C -->
+    <!--SKIPPED-->
+
+
+
+
 </pids>
