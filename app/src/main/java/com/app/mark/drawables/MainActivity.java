@@ -8,10 +8,13 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import java.util.ArrayList;
 import java.util.Set;
+import java.util.StringTokenizer;
+
 import android.os.Message;
 import android.widget.ListView;
 
@@ -99,6 +102,7 @@ public class MainActivity extends Activity {
                 Log.d("MA","Comm string received");
                 commLogAdapter.add(inputBundle.getString("COMM_STRING"));
                 commLogAdapter.notifyDataSetChanged();
+                commLogListView.setSelection(commLogAdapter.getCount()-1); // auto scroll
             }
             // Error case
             else {
@@ -161,6 +165,16 @@ public class MainActivity extends Activity {
         parameterListAdapter = new ArrayAdapter<String>(this, R.layout.pid_list_item, R.id.pid_list_item_text, parameterListItems);
         parameterListView.setAdapter(parameterListAdapter);
 
+        parameterListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String value = parameterListAdapter.getItem(position);
+                Log.d("MA", "Selected Parameter: " + value);
+                sendRequestDataCmd(value);
+                sendAddCmd(DrawableSurfaceView.VIEW_OBJ_TYPE.READOUT, value);
+            }
+        });
+
 
 
         mELM327 = new ELM327(this, mHandler);
@@ -203,7 +217,7 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View view) {
                 Log.d("buttons", "add gauge button pressed!!");
-                sendAddGaugeCmd("calc_eng_load");
+                sendAddCmd(DrawableSurfaceView.VIEW_OBJ_TYPE.GAUGE, "calc_eng_load");
             }
         });
         // Update Data Button
@@ -211,7 +225,7 @@ public class MainActivity extends Activity {
         mUpdateDataButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                sendUpdateGaugeCmd("calc_eng_load", (float)99.9);
+                sendUpdateCmd(DrawableSurfaceView.VIEW_OBJ_TYPE.GAUGE, "calc_eng_load", (float)99.9);
             }
         });
         // Destroy Gauge Button
@@ -219,7 +233,7 @@ public class MainActivity extends Activity {
         mDestroyGaugeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                sendDestroyGaugeCmd("calc_eng_load");
+                sendDestroyCmd(DrawableSurfaceView.VIEW_OBJ_TYPE.GAUGE, "calc_eng_load");
             }
         });
 
@@ -252,33 +266,44 @@ public class MainActivity extends Activity {
         msg.setData(requestBundle);
         mELM327.getHandler().sendMessage(msg);
     }
+    void sendRequestDataCmd(String param) {
+        Bundle requestBundle = new Bundle();
+        Message msg = mELM327.getHandler().obtainMessage();
+        requestBundle.putSerializable("CMD", ELM327.CMD_TYPE.ELM_REQUEST_DATA);
+        requestBundle.putString("PARAM_REQ", param);
+        msg.setData(requestBundle);
+        mELM327.getHandler().sendMessage(msg);
+    }
 
     /***********************************************
      * COMMUNICATION: Messages to DrawableThread
      ***********************************************/
-    // Send message to add a gauge display object to the DrawableSurfaceView
-    void sendAddGaugeCmd(String identifier) {
+    // Send message to add a display object to the DrawableSurfaceView
+    void sendAddCmd(DrawableSurfaceView.VIEW_OBJ_TYPE type, String identifier) {
         Bundle connectBundle = new Bundle();
         Message msg = mDrawableThread.getHandler().obtainMessage();
-        connectBundle.putSerializable("CMD", DrawableSurfaceView.VIEW_CMD_TYPE.ADD_GAUGE);
+        connectBundle.putSerializable("CMD", DrawableSurfaceView.VIEW_CMD_TYPE.ADD);
+        connectBundle.putSerializable("OBJ", type);
         connectBundle.putString("IDENT", identifier);
         msg.setData(connectBundle);
         mDrawableThread.getHandler().sendMessage(msg);
     }
-    // Send a message to destroy a DrawableSurfaceView gauge display object
-    void sendDestroyGaugeCmd(String identifier) {
+    // Send a message to destroy a DrawableSurfaceView display object
+    void sendDestroyCmd(DrawableSurfaceView.VIEW_OBJ_TYPE type, String identifier) {
         Bundle connectBundle = new Bundle();
         Message msg = mDrawableThread.getHandler().obtainMessage();
-        connectBundle.putSerializable("CMD", DrawableSurfaceView.VIEW_CMD_TYPE.DESTROY_GAUGE);
+        connectBundle.putSerializable("CMD", DrawableSurfaceView.VIEW_CMD_TYPE.DESTROY);
+        connectBundle.putSerializable("OBJ", type);
         connectBundle.putString("IDENT", identifier);
         msg.setData(connectBundle);
         mDrawableThread.getHandler().sendMessage(msg);
     }
-    // Send a message to update a DrawableSurfaceView gauge display object value
-    void sendUpdateGaugeCmd(String identifier, float value) {
+    // Send a message to update a DrawableSurfaceView display object value
+    void sendUpdateCmd(DrawableSurfaceView.VIEW_OBJ_TYPE type, String identifier, float value) {
         Bundle connectBundle = new Bundle();
         Message msg = mDrawableThread.getHandler().obtainMessage();
-        connectBundle.putSerializable("CMD", DrawableSurfaceView.VIEW_CMD_TYPE.UPDATE_GAUGE);
+        connectBundle.putSerializable("CMD", DrawableSurfaceView.VIEW_CMD_TYPE.UPDATE);
+        connectBundle.putSerializable("OBJ", type);
         connectBundle.putString("IDENT", identifier);
         connectBundle.putFloat("VAL", value);
         msg.setData(connectBundle);

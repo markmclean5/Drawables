@@ -13,6 +13,7 @@ import android.util.Log;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.UUID;
 
 /**
@@ -44,10 +45,21 @@ public class ELM327 extends Thread {
     private String ecuProto;                                // Text string of ECU protocol
     private InputStream mBTinStream;                        // InputStream for bluetooth communication
     private OutputStream mBToutStream;                      // OutputStream for bluetooth communication
-
     private ArrayList<PID> supportedPIDs = new ArrayList<>(); // All supported PIDs in one location
+    private String mBluetoothAddr;                          // Bluetooth address of ELM327
+    Context mContext;                                       // Context
+    private Bundle mBundle = new Bundle();                  // For creating the messages
+    private Handler outHandler;                             // Handler for output messages
+    private ArrayList<PID> activePIDs = new ArrayList<>();  // Currently active PIDs
+    private Iterator<PID> currentPID = activePIDs.iterator();
 
+    private boolean waiting = false;                        // Waiting on data from ELM327
 
+    public ELM327(Context context, Handler handler) {
+        // ELM327 Constructor
+        mContext = context;
+        outHandler = handler;
+    }
 
     private boolean btConnect(String deviceAddress) {
         // Connect to ELM327
@@ -73,7 +85,7 @@ public class ELM327 extends Thread {
     }
 
     private String ecuConnect() {
-        // Connect to ecu, return protocol
+        // Connect to ECU, return protocol
         // Issue first PID support command
         send("0100");
         String resp = receive();
@@ -87,21 +99,6 @@ public class ELM327 extends Thread {
             return "";
     }
 
-    private String mBluetoothAddr;
-
-
-    Context mContext;
-
-    private Bundle mBundle = new Bundle();                 //used for creating the msgs
-
-    private Handler outHandler;
-
-    // ELM327 Constructor
-    public ELM327(Context context, Handler handler) {
-        Log.d("ELMThread", "called thread constructor");
-        mContext = context;
-        outHandler = handler;
-    }
 
     // Handler for commands issued to ELM327 thread
     private Handler inHandler = new Handler() {
@@ -126,11 +123,13 @@ public class ELM327 extends Thread {
                         mLatestCmd = CMD_TYPE.ECU_CONNECT;
                         break;
                     case ELM_REQUEST_DATA:
-                        mDataRequestCmd = mBundle.getString("ELM_REQUEST_DATA");
+                        mDataRequestCmd = mBundle.getString("PARAM_REQ");
                         Log.d("ELM327", "ECU request data command received: " + mDataRequestCmd);
+                        mLatestCmd = CMD_TYPE.ELM_REQUEST_DATA;
                         break;
                     case ELM_REQUEST_SUPPORTED_PIDS:
                         mLatestCmd = CMD_TYPE.ELM_REQUEST_SUPPORTED_PIDS;
+
                         Log.d("ELM327", "PID Support Request command received");
                         break;
                     default:
@@ -142,6 +141,44 @@ public class ELM327 extends Thread {
             }
         }
     };
+
+
+    private boolean requestParameter(String desiredParameter) {
+        // Determine if parameter is supported
+        boolean foundParameter = false;
+        for(PID p : supportedPIDs) {
+            ArrayList<PID.Element> PIDElements = p.getAllElements();
+            for(PID.Element e : PIDElements) {
+                Log.d("ELM327", "RequestParameter comparing " + e.mLongName + " against " + desiredParameter);
+                if(e.mLongName.equals(desiredParameter)) {
+                    foundParameter = true;
+                    makeActive(p);
+                    break;
+                }
+            }
+            if(foundParameter) break;
+        }
+        return foundParameter;
+    }
+
+    private void makeActive(PID desiredPID) {
+        Log.d("ELM327", "Making PID active");
+        boolean alreadyActive = false;
+        for(PID p : activePIDs) {
+            // Check if PID is already active
+            if(p.getCommand().equals(desiredPID.getCommand())) {
+                alreadyActive = true;
+                Log.d("ELM327", "PID already active");
+                break;
+            }
+        }
+        if(!alreadyActive) {
+            // Add the PID to activePIDs, reset iterator
+            activePIDs.add(desiredPID);
+            Log.d("ELM327", "PID added");
+        }
+        currentPID = activePIDs.iterator();
+    }
 
 
     // Returns input handler
@@ -158,7 +195,6 @@ public class ELM327 extends Thread {
     }
 
     private void reportComm(String comm) {
-        Log.d("ELM327", "Reporting Communication");
         Bundle b = new Bundle();
         b.putString("COMM_STRING", comm);
         sendMessage(b);
@@ -220,8 +256,8 @@ public class ELM327 extends Thread {
     }
 
 
-    // send (string Data) - Send Data over Bluetooth!
     private void send(String Data) {
+        // send (string Data) - Send Data over Bluetooth!
         if (btConnected) {
             reportComm("TX:" + Data);
             // Append with CR + NL
@@ -235,8 +271,9 @@ public class ELM327 extends Thread {
         } else Log.d("ELMThread", "send error - called while disconnected");
     }
 
-    // receive string Data - Receive Data over Bluetooth!
+
     private String receive() {
+        // receive string Data - Receive Data over Bluetooth!
         byte[] inBytes = new byte[50];
         String Data = "";
         Boolean complete = false;
@@ -268,8 +305,9 @@ public class ELM327 extends Thread {
         return Data;
     }
 
-    // Issue reset command to ELM327
+
     public String reset() {
+        // Issue reset command to ELM327
         send("atz");                // issue actual reset command
         String resp = receive();
         send("ate0");               // set echo off
@@ -352,17 +390,20 @@ public class ELM327 extends Thread {
     public void run() {
         while (true) {
             //Run loop!!
-
             switch (mLatestCmd) {
                 case NONE:
-                    // Nothing to do here - move right along
+                    // Update the active PID list
+                    for(PID p : activePIDs) {
+                        Log.d("ELM327", "PID Request Data for" + p.getCommand());
+                        String response = request(p.getCommand());
+                        p.update(response);
+                    }
                     break;
                 case BT_ELM_CONNECT:
                     if (!btConnected && !elmConnected) {
                         Log.d("ELM327", "Run() Bluetooth connect  to " + mBluetoothAddr);
                         btConnected = btConnect(mBluetoothAddr);
                     }
-
                     if(!btConnected) {
                         Log.d("ELM327", "Bluetooth connect error");
                     }
@@ -380,7 +421,6 @@ public class ELM327 extends Thread {
                             Log.d("ELM327", "ELM connect error");
                             elmConnected = false;
                         }
-
                     }
                     mLatestCmd = CMD_TYPE.NONE;             // Reset
                     break;
@@ -402,6 +442,7 @@ public class ELM327 extends Thread {
                     mLatestCmd = CMD_TYPE.NONE;             // Reset
                     break;
                 case ELM_REQUEST_DATA:
+                    requestParameter(mDataRequestCmd);
                     mLatestCmd = CMD_TYPE.NONE;
                     break;
                 case ELM_REQUEST_SUPPORTED_PIDS:

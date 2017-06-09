@@ -24,9 +24,14 @@ class DrawableSurfaceView extends SurfaceView implements SurfaceHolder.Callback 
     // Definition of compatible commands key "CMD" sent to the thread
     enum VIEW_CMD_TYPE {
         NONE,
-        ADD_GAUGE,
-        UPDATE_GAUGE,
-        DESTROY_GAUGE,
+        ADD,
+        UPDATE,
+        DESTROY,
+    }
+
+    enum VIEW_OBJ_TYPE {
+        GAUGE,
+        READOUT
     }
 
     // Thread for all draw operations
@@ -42,23 +47,43 @@ class DrawableSurfaceView extends SurfaceView implements SurfaceHolder.Callback 
                 Bundle mBundle = msg.getData();
                 if(mBundle.containsKey("CMD")) {
                     VIEW_CMD_TYPE latestCmd = (VIEW_CMD_TYPE) mBundle.getSerializable("CMD");
+                    String ident = mBundle.getString("IDENT");
+                    VIEW_OBJ_TYPE type = (VIEW_OBJ_TYPE) mBundle.getSerializable("OBJ");
                     switch(latestCmd) {
                         case NONE:
                             // empty command received
                             break;
-                        case ADD_GAUGE:
+                        case ADD:
                             // Add a gauge to the DrawableSurfaceView
-                            String gaugeIdent = mBundle.getString("IDENT");
-                            addGauge(gaugeIdent);
+                            switch(type) {
+                                case GAUGE:
+                                    addGauge(ident);
+                                    break;
+                                case READOUT:
+                                    addReadout(ident);
+                                    break;
+                            }
                             break;
-                        case DESTROY_GAUGE:
-                            String delIdent = mBundle.getString("IDENT");
-                            destroyGauge(delIdent);
+                        case DESTROY:
+                            switch(type) {
+                                case GAUGE:
+                                    destroyGauge(ident);
+                                    break;
+                                case READOUT:
+                                    destroyReadout(ident);
+                                    break;
+                            }
                             break;
-                        case UPDATE_GAUGE:
-                            String updIdent = mBundle.getString("IDENT");
+                        case UPDATE:
                             Float updVal= mBundle.getFloat("VAL");
-                            updateGauge(updIdent, updVal);
+                            switch(type){
+                                case GAUGE:
+                                    updateGauge(ident, updVal);
+                                    break;
+                                case READOUT:
+                                    updateReadout(ident, updVal);
+                                    break;
+                            }
                             break;
                         default:
                             Log.d("DrawableThread", "Unknown CMD type received");
@@ -90,6 +115,7 @@ class DrawableSurfaceView extends SurfaceView implements SurfaceHolder.Callback 
 
 
         Vector<Gauge> mGaugeVector = new Vector<Gauge>();
+        Vector<Readout> mReadoutVector = new Vector<>();
 
 
 
@@ -145,6 +171,35 @@ class DrawableSurfaceView extends SurfaceView implements SurfaceHolder.Callback 
                 }
             }
         }
+
+
+        public void addReadout(String ident) {
+            mReadoutVector.add(new Readout(getContext(), ident));
+
+        }
+
+        public void destroyReadout(String ident) {
+            if(!mReadoutVector.isEmpty()) {
+                for(Readout r : mReadoutVector){
+                    if(r.getIdent().equals(ident)) {
+                        mReadoutVector.remove(r);
+                    }
+                }
+            }
+
+        }
+
+        public void updateReadout(String ident, float value) {
+            for (Readout R : mReadoutVector) {
+                if (R.getIdent() == ident) {
+                    R.setValue(value);
+                    break;
+                } else
+                    Log.d("readout update:", "could not find" + ident);
+            }
+        }
+
+
 
 
         public DrawableThread(SurfaceHolder surfaceHolder, Context context) {
@@ -312,9 +367,15 @@ class DrawableSurfaceView extends SurfaceView implements SurfaceHolder.Callback 
             canvas.drawText(dTimeString, 50, 50, mLinePaint);
 
 
+            // Draw all objects
             for(Gauge G : mGaugeVector) {
                 G.draw(canvas);
             }
+            for(Readout R : mReadoutVector) {
+                R.draw(canvas);
+            }
+
+
 
             mLastTime = currTime;
         }
