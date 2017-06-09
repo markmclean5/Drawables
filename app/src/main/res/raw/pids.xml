@@ -1351,8 +1351,168 @@
 
     <!-- PID 011C -->
     <!--SKIPPED-->
+    
+    <!-- PID 011D -->
+    <pid_011D>
+        <name>Oxygen Sensors Present (4B)</name>
+        <type>parameter</type>
+        <num_bytes>1</num_bytes>
+        <num_elements>8</num_elements>
+        <mode>01</mode>
+        <command>1D</command>
+        <element1>
+            <type>boolean</type>
+            <position>A0</position>
+            <short_name>B1_S1_PRESENT</short_name>
+            <long_name>Bank 1 Sensor 1 Present</long_name>
+        </element1>
+        <element2>
+            <type>boolean</type>
+            <position>A1</position>
+            <short_name>B1_S2_PRESENT</short_name>
+            <long_name>Bank 1 Sensor 2 Present</long_name>
+        </element2>
+        <element3>
+            <type>boolean</type>
+            <position>A2</position>
+            <short_name>B2_S1_PRESENT</short_name>
+            <long_name>Bank 2 Sensor 1 Present</long_name>
+        </element3>
+        <element4>
+            <type>boolean</type>
+            <position>A3</position>
+            <short_name>B2_S2_PRESENT</short_name>
+            <long_name>Bank 2 Sensor 2 Present</long_name>
+        </element4>
+        <element5>
+            <type>boolean</type>
+            <position>A4</position>
+            <short_name>B3_S1_PRESENT</short_name>
+            <long_name>Bank 3 Sensor 1 Present</long_name>
+        </element5>
+        <element6>
+            <type>boolean</type>
+            <position>A5</position>
+            <short_name>B3_S2_PRESENT</short_name>
+            <long_name>Bank 3 Sensor 2 Present</long_name>
+        </element6>
+        <element7>
+            <type>boolean</type>
+            <position>A6</position>
+            <short_name>B4_S1_PRESENT</short_name>
+            <long_name>Bank 4 Sensor 1 Present</long_name>
+        </element7>
+        <element8>
+            <type>boolean</type>
+            <position>A7</position>
+            <short_name>B4_S2_PRESENT</short_name>
+            <long_name>Bank 4 Sensor 2 Present</long_name>
+        </element8>
+    </pid_011D>
+    
+    <!-- PID 011E -->
+    <pid_011E>
+        <name>Auxiliary Input Status</name>
+        <type>parameter</type>
+        <num_bytes>1</num_bytes>
+        <num_elements>1</num_elements>
+        <mode>01</mode>
+        <command>1E</command>
+        <element1>
+            <type>boolean</type>
+            <position>A0</position>
+            <short_name>PTO_STS_ACTIVE</short_name>
+            <long_name>Power Take Off Status Active</long_name>
+        </element1>
+    </pid_011E>
 
+    <!-- PID 011F -->
+    <pid_011F>
+        <name>Run Time Since Engine Start</name>
+        <type>parameter</type>
+        <num_bytes>2</num_bytes>
+        <num_elements>1</num_elements>
+        <mode>01</mode>
+        <command>1F</command>
+        <element1>
+            <type>value</type>
+            <position>A7</position>
+            <num_bits>16</num_bits>
+            <short_name>START_RUN_TIME</short_name>
+            <long_name>Run Time Since Engine Start</long_name>
+            <min>0</min>
+            <max>65535</max>
+            <units>sec</units>
+            <scaling>1.0</scaling>
+            <offset>0.0</offset>
+        </element1>
+    </pid_011F>
+    
+    <!-- PID 0121 -->
+    <pid_0121>
+        <name>Dist With MIL On</name>
+        <type>parameter</type>
+        <num_bytes>2</num_bytes>
+        <num_elements>1</num_elements>
+        <mode>01</mode>
+        <command>21</command>
+        <element1>
+            <type>value</type>
+            <position>A7</position>
+            <num_bits>16</num_bits>
+            <short_name>DIST_MIL_ON</short_name>
+            <long_name>Distance With MIL On</long_name>
+            <min>0</min>
+            <max>65535</max>
+            <units>km</units>
+            <scaling>1.0</scaling>
+            <offset>0.0</offset>
+        </element1>
+    </pid_0121>
 
+    <!-- PID 0122 -->
+    <pid_0122>
+        <name>Fuel Rail Pressure</name>
+        <type>parameter</type>
+        <num_bytes>2</num_bytes>
+        <num_elements>1</num_elements>
+        <mode>01</mode>
+        <command>22</command>
+        <element1>
+            <type>value</type>
+            <position>A7</position>
+            <num_bits>16</num_bits>
+            <short_name>FUEL_RAIL_PRESS</short_name>
+            <long_name>Fuel Rail Pressure</long_name>
+            <min>0</min>
+            <max>5177.265</max>
+            <units>kPa</units>
+            <scaling>0.079</scaling>
+            <offset>0.0</offset>
+        </element1>
+    </pid_0122>
+
+    <!-- PID 0123 -->
+    <pid_0123>
+        <name>Fuel Rail Gauge Pressure</name>
+        <type>parameter</type>
+        <num_bytes>2</num_bytes>
+        <num_elements>1</num_elements>
+        <mode>01</mode>
+        <command>23</command>
+        <element1>
+            <type>value</type>
+            <position>A7</position>
+            <num_bits>16</num_bits>
+            <short_name>FUEL_RAIL_GAUGE_PRESS</short_name>
+            <long_name>Fuel Rail Gauge Pressure</long_name>
+            <min>0</min>
+            <max>655350</max>
+            <units>kPa</units>
+            <scaling>10</scaling>
+            <offset>0.0</offset>
+        </element1>
+    </pid_0123>
 
 
 </pids>
