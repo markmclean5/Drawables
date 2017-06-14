@@ -13,7 +13,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import java.util.ArrayList;
 import java.util.Set;
-import java.util.StringTokenizer;
 
 import android.os.Message;
 import android.widget.ListView;
@@ -33,19 +32,16 @@ public class MainActivity extends Activity {
     ArrayAdapter<String> commLogAdapter;
     ArrayList<String> commLogItems = new ArrayList<String>();
 
-
     // For list of supported parameters (elements of supported PIDs)
     ListView parameterListView;
     ArrayAdapter<String> parameterListAdapter;
     ArrayList<String> parameterListItems = new ArrayList<String>();
 
-
     // Message handler: receives all messages coming into the main activity
     public Handler mHandler = new Handler(){   //handles the INcoming msgs
         @Override public void handleMessage(Message msg)
         {
-            Bundle inputBundle = new Bundle();
-            inputBundle = msg.getData();
+            Bundle inputBundle = msg.getData();
             if(inputBundle.containsKey("RESP")) {
                 ELM327.CMD_TYPE cmdResp = (ELM327.CMD_TYPE)inputBundle.getSerializable("RESP");
                 if(cmdResp != null) {
@@ -66,7 +62,8 @@ public class MainActivity extends Activity {
                             Log.d("MA", "ECU connect command response received");
                             if(inputBundle.getString("ECU_CONNECT_RESULT").equals("OK")) {
                                 statusDialog.setMessage("ECU Connected - " + inputBundle.getString("ECU_PROTO_STRING"));
-                                sendEcuConnectCmd();
+                                //sendEcuConnectCmd();
+                                sendRequestSupportedPIDsCmd();
                             }
                             else
                                 statusDialog.setMessage("Failed to connect to ECU");
@@ -76,8 +73,6 @@ public class MainActivity extends Activity {
                                     statusDialog.dismiss();
                                 }
                             }, 2000);
-
-
                             break;
                         case ELM_REQUEST_DATA:
                             Log.d("MA", "ECU request data command response received");
@@ -114,6 +109,7 @@ public class MainActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
         /* **********************************************
          * DrawableSurfaceView and DrawableThread setup
@@ -175,13 +171,7 @@ public class MainActivity extends Activity {
             }
         });
 
-
-
-        mELM327 = new ELM327(this, mHandler);
-
-
-
-
+        connect();
 
         /* **********************************************
          * Buttons
@@ -194,48 +184,49 @@ public class MainActivity extends Activity {
                 toggleCommView();
             }
         });
-        // ECU Connect Button
-        Button mConnectButton = (Button) findViewById(R.id.connect_button);
-        mConnectButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                connect();
-            }
-        });
-        // Request PIDS Button
-        Button mRequestButton = (Button) findViewById(R.id.request_button);
-        mRequestButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // Add PID Request command here
-                sendRequestSupportedPIDsCmd();
-            }
-        });
-        // Add Gauge Button
-        Button mAddGaugeButton = (Button) findViewById(R.id.add_gauge_button);
-        mAddGaugeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Log.d("buttons", "add gauge button pressed!!");
-                sendAddCmd(DrawableSurfaceView.VIEW_OBJ_TYPE.GAUGE, "calc_eng_load");
-            }
-        });
-        // Update Data Button
-        Button mUpdateDataButton = (Button) findViewById(R.id.update_button);
-        mUpdateDataButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                sendUpdateCmd(DrawableSurfaceView.VIEW_OBJ_TYPE.GAUGE, "calc_eng_load", (float)99.9);
-            }
-        });
-        // Destroy Gauge Button
-        Button mDestroyGaugeButton = (Button) findViewById(R.id.destroy_button);
-        mDestroyGaugeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                sendDestroyCmd(DrawableSurfaceView.VIEW_OBJ_TYPE.GAUGE, "calc_eng_load");
-            }
-        });
+//        // ECU Connect Button
+//        Button mConnectButton = (Button) findViewById(R.id.connect_button);
+//        mConnectButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                connect();
+//            }
+//        });
+//        // Request PIDS Button
+//        Button mRequestButton = (Button) findViewById(R.id.request_button);
+//        mRequestButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                // Add PID Request command here
+//
+//            }
+//        });
+//        // Reset PIDs Button
+//        Button mResetPidsButton = (Button) findViewById(R.id.add_gauge_button);
+//        mResetPidsButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Log.d("buttons", "PID reset button pressed!!");
+//                sendResetDataCmd();
+//                sendResetDisplayCmd();
+//            }
+//        });
+//        // Update Data Button
+//        Button mUpdateDataButton = (Button) findViewById(R.id.update_button);
+//        mUpdateDataButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                sendUpdateCmd(DrawableSurfaceView.VIEW_OBJ_TYPE.GAUGE, "calc_eng_load", (float)99.9);
+//            }
+//        });
+//        // Destroy Gauge Button
+//        Button mDestroyGaugeButton = (Button) findViewById(R.id.destroy_button);
+//        mDestroyGaugeButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                sendDestroyCmd(DrawableSurfaceView.VIEW_OBJ_TYPE.GAUGE, "calc_eng_load");
+//            }
+//        });
 
     }
 
@@ -275,6 +266,13 @@ public class MainActivity extends Activity {
         mELM327.getHandler().sendMessage(msg);
     }
 
+    void sendResetDataCmd() {
+        Bundle resetBundle = new Bundle();
+        Message msg = mELM327.getHandler().obtainMessage();
+        resetBundle.putSerializable("CMD", ELM327.CMD_TYPE.ELM_RESET_DATA);
+        mELM327.getHandler().sendMessage(msg);
+    }
+
     /***********************************************
      * COMMUNICATION: Messages to DrawableThread
      ***********************************************/
@@ -307,6 +305,13 @@ public class MainActivity extends Activity {
         connectBundle.putString("IDENT", identifier);
         connectBundle.putFloat("VAL", value);
         msg.setData(connectBundle);
+        mDrawableThread.getHandler().sendMessage(msg);
+    }
+
+    void sendResetDisplayCmd() {
+        Bundle resetBundle = new Bundle();
+        Message msg = mDrawableThread.getHandler().obtainMessage();
+        resetBundle.putSerializable("CMD", DrawableSurfaceView.VIEW_CMD_TYPE.RESET);
         mDrawableThread.getHandler().sendMessage(msg);
     }
 
@@ -358,9 +363,17 @@ public class MainActivity extends Activity {
         } else
             Log.d("MainActivity", "Error - no paired bluetooth devices");
     }
+
+
+    /***********************************************
+     * Start screen
+     ***********************************************/
+    void start() {
+        setContentView(R.layout.start);
+        while(true);
+    }
+
 }
-
-
 
 
 

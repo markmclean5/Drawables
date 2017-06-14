@@ -3,55 +3,6 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent">
 
-    <RelativeLayout
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent">
-
-        <com.app.mark.drawables.DrawableSurfaceView
-            android:id="@+id/drawable_surface"
-            android:layout_width="600dp"
-            android:layout_height="fill_parent"/>
-
-        <ListView
-            android:id="@+id/comm_view"
-            android:layout_toRightOf="@id/drawable_surface"
-            android:layout_width="260dp"
-            android:layout_height="fill_parent"
-            android:layout_gravity="end"
-            android:focusableInTouchMode="false"
-            android:listSelector="@android:color/transparent"
-            android:layout_weight="2"
-            android:headerDividersEnabled="false"
-            android:footerDividersEnabled="false"
-            android:dividerHeight="0dp"
-            android:divider="#000000"
-            android:cacheColorHint="#000000"
-            android:drawSelectorOnTop="false"
-            />
-        <ListView
-            android:id="@+id/pid_view"
-            android:layout_toRightOf="@id/drawable_surface"
-            android:layout_width="260dp"
-            android:layout_height="fill_parent"
-            android:layout_gravity="end" />
-            <!--android:focusableInTouchMode="false"-->
-            <!--android:listSelector="@android:color/transparent"-->
-            <!--android:layout_weight="2"-->
-            <!--android:headerDividersEnabled="false"-->
-            <!--android:footerDividersEnabled="false"-->
-            <!--android:dividerHeight="0dp"-->
-            <!--android:divider="#000000"-->
-            <!--android:cacheColorHint="#000000"-->
-            <!--android:drawSelectorOnTop="false"-->
-            <!--/>-->
-
-
-
-    </RelativeLayout>
-
-
-
-
     <!--Layout for control buttons-->
     <RelativeLayout
         android:layout_width="100dp"
@@ -60,38 +11,49 @@
         <Button
             android:id="@+id/toggle_log_button"
             android:layout_width="fill_parent"
-            android:layout_height="60dp"
-            android:text="Toggle Log" />
+            android:layout_height="75dp"
+            android:text="Comm Log" />
         <Button
-            android:id="@+id/connect_button"
+            android:id="@+id/add_parameter_button"
             android:layout_below="@id/toggle_log_button"
             android:layout_width="fill_parent"
-            android:layout_height="60dp"
-            android:text="ECU Connect" />
-        <Button
-            android:id="@+id/request_button"
-            android:layout_below="@id/connect_button"
-            android:layout_width="fill_parent"
-            android:layout_height="60dp"
-            android:text="Request PIDs" />
-        <Button
-            android:id="@+id/add_gauge_button"
-            android:layout_below="@id/request_button"
-            android:layout_width="fill_parent"
-            android:layout_height="60dp"
-            android:text="Add gauge" />
-        <Button
-            android:id="@+id/update_button"
-            android:layout_below="@id/add_gauge_button"
-            android:layout_width="fill_parent"
-            android:layout_height="60dp"
-            android:text="Update Data" />
-        <Button
-            android:id="@+id/destroy_button"
-            android:layout_below="@id/update_button"
-            android:layout_width="fill_parent"
-            android:layout_height="60dp"
-            android:text="Destroy Gauge" />
+            android:layout_height="75dp"
+            android:text="Add Readout" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
+
+        <com.app.mark.drawables.DrawableSurfaceView
+            android:id="@+id/drawable_surface"
+            android:layout_width="600dp"
+            android:layout_height="fill_parent" />
+
+        <ListView
+            android:id="@+id/comm_view"
+            android:background="@color/colorPrimaryDark"
+            android:layout_width="350dp"
+            android:layout_height="fill_parent"
+            android:layout_centerInParent="true"
+            android:layout_gravity="end"
+            android:layout_weight="2"
+            android:cacheColorHint="#000000"
+            android:divider="#000000"
+            android:dividerHeight="0dp"
+            android:drawSelectorOnTop="false"
+            android:focusableInTouchMode="false"
+            android:footerDividersEnabled="false"
+            android:headerDividersEnabled="false"
+            android:listSelector="@android:color/transparent" />
+
+        <ListView
+            android:id="@+id/pid_view"
+            android:layout_width="260dp"
+            android:layout_height="fill_parent"
+            android:layout_gravity="end"
+            android:layout_toRightOf="@id/drawable_surface" />
+
     </RelativeLayout>
 
 

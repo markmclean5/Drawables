@@ -34,7 +34,8 @@ public class ELM327 extends Thread {
         ELM_RESET,
         ECU_CONNECT,
         ELM_REQUEST_DATA,
-        ELM_REQUEST_SUPPORTED_PIDS
+        ELM_REQUEST_SUPPORTED_PIDS,
+        ELM_RESET_DATA
     }
 
     private CMD_TYPE mLatestCmd = CMD_TYPE.NONE;            // Latest unprocessed command from inHandler
@@ -131,6 +132,9 @@ public class ELM327 extends Thread {
                         mLatestCmd = CMD_TYPE.ELM_REQUEST_SUPPORTED_PIDS;
 
                         Log.d("ELM327", "PID Support Request command received");
+                        break;
+                    case ELM_RESET_DATA:
+                        activePIDs.clear();
                         break;
                     default:
                         Log.d("ELM327", "Unknown command type received");
@@ -259,7 +263,7 @@ public class ELM327 extends Thread {
     private void send(String Data) {
         // send (string Data) - Send Data over Bluetooth!
         if (btConnected) {
-            reportComm("TX:" + Data);
+            reportComm("TX:  " + Data);
             // Append with CR + NL
             Data += "\r\n";
             try {
@@ -301,7 +305,7 @@ public class ELM327 extends Thread {
                 e.printStackTrace();
             }
         } else Log.d("ELMThread", "receive error - called while disconnected");
-        reportComm("RX:"+ Data);
+        reportComm("RX:   "+ Data);
         return Data;
     }
 

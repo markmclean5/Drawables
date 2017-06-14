@@ -27,6 +27,7 @@ class DrawableSurfaceView extends SurfaceView implements SurfaceHolder.Callback 
         ADD,
         UPDATE,
         DESTROY,
+        RESET
     }
 
     enum VIEW_OBJ_TYPE {
@@ -84,6 +85,11 @@ class DrawableSurfaceView extends SurfaceView implements SurfaceHolder.Callback 
                                     updateReadout(ident, updVal);
                                     break;
                             }
+                            break;
+
+                        case RESET:
+                            mGaugeVector.clear();
+                            mReadoutVector.clear();
                             break;
                         default:
                             Log.d("DrawableThread", "Unknown CMD type received");
