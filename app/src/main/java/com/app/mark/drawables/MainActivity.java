@@ -72,12 +72,12 @@ public class MainActivity extends Activity {
                                 public void run() {
                                     statusDialog.dismiss();
                                 }
-                            }, 2000);
+                            }, 1500);
                             break;
                         case ELM_REQUEST_DATA:
                             Log.d("MA", "ECU request data command response received");
                             break;
-                        case ELM_REQUEST_SUPPORTED_PIDS:
+                        case ELM_REQUEST_SUPPORTED_PARAMS:
                             String name = inputBundle.getString("NAME");
                             if(!name.contains("PID")) {
                                 Log.d("MA", "ECU Request supported PIDs response received: " + name);
@@ -129,11 +129,12 @@ public class MainActivity extends Activity {
         }
         // start the thread
         mDrawableThread.doStart();
+        Handler drawableHandler = mDrawableThread.getHandler();
 
         /* **********************************************
          * ELM327 setup
          * **********************************************/
-        mELM327 = new ELM327(this, mHandler);
+        mELM327 = new ELM327(this, mHandler, drawableHandler);
 
         /* **********************************************
          * Communication Logging
@@ -184,50 +185,6 @@ public class MainActivity extends Activity {
                 toggleCommView();
             }
         });
-//        // ECU Connect Button
-//        Button mConnectButton = (Button) findViewById(R.id.connect_button);
-//        mConnectButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                connect();
-//            }
-//        });
-//        // Request PIDS Button
-//        Button mRequestButton = (Button) findViewById(R.id.request_button);
-//        mRequestButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                // Add PID Request command here
-//
-//            }
-//        });
-//        // Reset PIDs Button
-//        Button mResetPidsButton = (Button) findViewById(R.id.add_gauge_button);
-//        mResetPidsButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Log.d("buttons", "PID reset button pressed!!");
-//                sendResetDataCmd();
-//                sendResetDisplayCmd();
-//            }
-//        });
-//        // Update Data Button
-//        Button mUpdateDataButton = (Button) findViewById(R.id.update_button);
-//        mUpdateDataButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                sendUpdateCmd(DrawableSurfaceView.VIEW_OBJ_TYPE.GAUGE, "calc_eng_load", (float)99.9);
-//            }
-//        });
-//        // Destroy Gauge Button
-//        Button mDestroyGaugeButton = (Button) findViewById(R.id.destroy_button);
-//        mDestroyGaugeButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                sendDestroyCmd(DrawableSurfaceView.VIEW_OBJ_TYPE.GAUGE, "calc_eng_load");
-//            }
-//        });
-
     }
 
     /***********************************************
@@ -250,13 +207,15 @@ public class MainActivity extends Activity {
         msg.setData(connectBundle);
         mELM327.getHandler().sendMessage(msg);
     }
+    // Construct and send message to request all supported parameters
     void sendRequestSupportedPIDsCmd() {
         Bundle requestBundle = new Bundle();
         Message msg = mELM327.getHandler().obtainMessage();
-        requestBundle.putSerializable("CMD", ELM327.CMD_TYPE.ELM_REQUEST_SUPPORTED_PIDS);
+        requestBundle.putSerializable("CMD", ELM327.CMD_TYPE.ELM_REQUEST_SUPPORTED_PARAMS);
         msg.setData(requestBundle);
         mELM327.getHandler().sendMessage(msg);
     }
+    // Construct and send message to request
     void sendRequestDataCmd(String param) {
         Bundle requestBundle = new Bundle();
         Message msg = mELM327.getHandler().obtainMessage();
@@ -265,7 +224,6 @@ public class MainActivity extends Activity {
         msg.setData(requestBundle);
         mELM327.getHandler().sendMessage(msg);
     }
-
     void sendResetDataCmd() {
         Bundle resetBundle = new Bundle();
         Message msg = mELM327.getHandler().obtainMessage();

@@ -6,6 +6,7 @@ import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 
@@ -34,12 +35,12 @@ public class ELM327 extends Thread {
         ELM_RESET,
         ECU_CONNECT,
         ELM_REQUEST_DATA,
-        ELM_REQUEST_SUPPORTED_PIDS,
+        ELM_REQUEST_SUPPORTED_PARAMS,
         ELM_RESET_DATA
     }
 
     private CMD_TYPE mLatestCmd = CMD_TYPE.NONE;            // Latest unprocessed command from inHandler
-    private String mDataRequestCmd = "";                    // Data request command string
+    private String mDataRequestCmd = "";                         // Data request command string
     private boolean btConnected = false;                    // State of bluetooth connection
     private boolean elmConnected = false;                   // State of ELM connection
     private boolean ecuConnected = false;                   // State of ECU connection
@@ -50,16 +51,21 @@ public class ELM327 extends Thread {
     private String mBluetoothAddr;                          // Bluetooth address of ELM327
     Context mContext;                                       // Context
     private Bundle mBundle = new Bundle();                  // For creating the messages
-    private Handler outHandler;                             // Handler for output messages
+    private Handler outHandlerMA;                           // Handler for output messages to MA
+    private Handler outHandlerDisp;                         // Handler for output messages to display
     private ArrayList<PID> activePIDs = new ArrayList<>();  // Currently active PIDs
     private Iterator<PID> currentPID = activePIDs.iterator();
 
     private boolean waiting = false;                        // Waiting on data from ELM327
 
-    public ELM327(Context context, Handler handler) {
+    Handler inHandler;                                      // Handler for input messages
+
+    public ELM327(Context context, Handler handler, Handler drawableHandler) {
         // ELM327 Constructor
         mContext = context;
-        outHandler = handler;
+        outHandlerMA = handler;
+        outHandlerDisp = drawableHandler;
+
     }
 
     private boolean btConnect(String deviceAddress) {
@@ -101,67 +107,71 @@ public class ELM327 extends Thread {
     }
 
 
-    // Handler for commands issued to ELM327 thread
-    private Handler inHandler = new Handler() {
-        // Handler for message received by ELM327 thread
-        @Override
-        public void handleMessage(Message msg) {
-            mBundle = msg.getData();
-            if (mBundle.containsKey("CMD")) {
-                mLatestCmd = (CMD_TYPE) mBundle.getSerializable("CMD");
-                switch (mLatestCmd) {
-                    // Handle valid commands - set up initial conditions for run() to perform
-                    case BT_ELM_CONNECT:
-                        mBluetoothAddr = mBundle.getString("DEVICE_ADDR");
-                        Log.d("ELM327", "Connect command received to " + mBluetoothAddr);
-                        break;
-                    case ELM_RESET:
-                        Log.d("ELM327", "Reset command received");
-                        mLatestCmd = CMD_TYPE.ELM_RESET;
-                        break;
-                    case ECU_CONNECT:
-                        Log.d("ELM327", "ECU connect command received");
-                        mLatestCmd = CMD_TYPE.ECU_CONNECT;
-                        break;
-                    case ELM_REQUEST_DATA:
-                        mDataRequestCmd = mBundle.getString("PARAM_REQ");
-                        Log.d("ELM327", "ECU request data command received: " + mDataRequestCmd);
-                        mLatestCmd = CMD_TYPE.ELM_REQUEST_DATA;
-                        break;
-                    case ELM_REQUEST_SUPPORTED_PIDS:
-                        mLatestCmd = CMD_TYPE.ELM_REQUEST_SUPPORTED_PIDS;
-
-                        Log.d("ELM327", "PID Support Request command received");
-                        break;
-                    case ELM_RESET_DATA:
-                        activePIDs.clear();
-                        break;
-                    default:
-                        Log.d("ELM327", "Unknown command type received");
-                        break;
-                }
-            } else {
-                Log.d("ELM327", "inHandler message received without command");
-            }
-        }
-    };
+//    // Handler for commands issued to ELM327 thread
+//    private Handler inHandler = new Handler() {
+//        // Handler for message received by ELM327 thread
+//        @Override
+//        public void handleMessage(Message msg) {
+//            mBundle = msg.getData();
+//            if (mBundle.containsKey("CMD")) {
+//                mLatestCmd = (CMD_TYPE) mBundle.getSerializable("CMD");
+//                switch (mLatestCmd) {
+//                    // Handle valid commands - set up initial conditions for run() to perform
+//                    case BT_ELM_CONNECT:
+//                        mBluetoothAddr = mBundle.getString("DEVICE_ADDR");
+//                        Log.d("ELM327", "Connect command received to " + mBluetoothAddr);
+//                        break;
+//                    case ELM_RESET:
+//                        Log.d("ELM327", "Reset command received");
+//                        mLatestCmd = CMD_TYPE.ELM_RESET;
+//                        break;
+//                    case ECU_CONNECT:
+//                        Log.d("ELM327", "ECU connect command received");
+//                        mLatestCmd = CMD_TYPE.ECU_CONNECT;
+//                        break;
+//                    case ELM_REQUEST_DATA:
+//                        mDataRequestCmd = mBundle.getString("PARAM_REQ");
+//                        Log.d("ELM327", "ECU request data command received: " + mDataRequestCmd);
+//                        mLatestCmd = CMD_TYPE.ELM_REQUEST_DATA;
+//                        break;
+//                    case ELM_REQUEST_SUPPORTED_PARAMS:
+//                        mLatestCmd = CMD_TYPE.ELM_REQUEST_SUPPORTED_PARAMS;
+//
+//                        Log.d("ELM327", "PID Support Request command received");
+//                        break;
+//                    case ELM_RESET_DATA:
+//                        activePIDs.clear();
+//                        break;
+//                    default:
+//                        Log.d("ELM327", "Unknown command type received");
+//                        break;
+//                }
+//            } else {
+//                Log.d("ELM327", "inHandler message received without command");
+//            }
+//        }
+//    };
 
 
     private boolean requestParameter(String desiredParameter) {
         // Determine if parameter is supported
         boolean foundParameter = false;
+
         for(PID p : supportedPIDs) {
             ArrayList<PID.Element> PIDElements = p.getAllElements();
             for(PID.Element e : PIDElements) {
-                Log.d("ELM327", "RequestParameter comparing " + e.mLongName + " against " + desiredParameter);
+                Log.d("ELM327", "comparing " + e.mLongName + "against " + desiredParameter);
                 if(e.mLongName.equals(desiredParameter)) {
                     foundParameter = true;
+                    Log.d("ELM327", "Parameter found: " + desiredParameter);
                     makeActive(p);
                     break;
                 }
             }
             if(foundParameter) break;
         }
+        if(!foundParameter)
+            Log.d("ELM327", "Parameter NOT found: " + desiredParameter);
         return foundParameter;
     }
 
@@ -206,9 +216,9 @@ public class ELM327 extends Thread {
 
     // Send a response detailing results of PID_SUPPORT_QUERY
     private void pidSupportResp() {
-        Log.d("ELM327", "Responding to ELM_REQUEST_SUPPORTED_PIDS");
+        Log.d("ELM327", "Responding to ELM_REQUEST_SUPPORTED_PARAMS");
         Bundle b = new Bundle();
-        b.putSerializable("RESP", CMD_TYPE.ELM_REQUEST_SUPPORTED_PIDS);
+        b.putSerializable("RESP", CMD_TYPE.ELM_REQUEST_SUPPORTED_PARAMS);
         b.putString("ECU_CONNECT_RESULT", fail_okay(ecuConnected));
         b.putString("ECU_PROTO_STRING", ecuProto);
         sendMessage(b);
@@ -244,22 +254,22 @@ public class ELM327 extends Thread {
         sendMessage(b);
     }
 
-    // Send a response detailing results of ELM_REQUEST_SUPPORTED_PIDS
+    // Send a response detailing results of ELM_REQUEST_SUPPORTED_PARAMS
     private void elmSupportedPIDsResp(String PIDName) {
         Bundle b = new Bundle();
-        b.putSerializable("RESP", CMD_TYPE.ELM_REQUEST_SUPPORTED_PIDS);
+        b.putSerializable("RESP", CMD_TYPE.ELM_REQUEST_SUPPORTED_PARAMS);
         b.putString("NAME", PIDName);
         sendMessage(b);
     }
 
-    // Send a Bundle from thread in a Message using outHandler
+    // Send a Bundle from thread in a Message using outHandlerMA
     private void sendMessage(Bundle b) {
-        Message msgOut = outHandler.obtainMessage();
+        Message msgOut = outHandlerMA.obtainMessage();
         msgOut.setData(b);
-        outHandler.sendMessage(msgOut);
+        outHandlerMA.sendMessage(msgOut);
     }
 
-
+    // send string Data - Send Data over Bluetooth!
     private void send(String Data) {
         // send (string Data) - Send Data over Bluetooth!
         if (btConnected) {
@@ -276,8 +286,8 @@ public class ELM327 extends Thread {
     }
 
 
+    // receive string Data - Receive Data over Bluetooth!
     private String receive() {
-        // receive string Data - Receive Data over Bluetooth!
         byte[] inBytes = new byte[50];
         String Data = "";
         Boolean complete = false;
@@ -392,6 +402,50 @@ public class ELM327 extends Thread {
 
     @Override
     public void run() {
+        // Handler for commands issued to ELM327 thread
+         inHandler = new Handler() {
+            // Handler for message received by ELM327 thread
+            @Override
+            public void handleMessage(Message msg) {
+                mBundle = msg.getData();
+                if (mBundle.containsKey("CMD")) {
+                    mLatestCmd = (CMD_TYPE) mBundle.getSerializable("CMD");
+                    switch (mLatestCmd) {
+                        // Handle valid commands - set up initial conditions for run() to perform
+                        case BT_ELM_CONNECT:
+                            mBluetoothAddr = mBundle.getString("DEVICE_ADDR");
+                            Log.d("ELM327", "Connect command received to " + mBluetoothAddr);
+                            break;
+                        case ELM_RESET:
+                            Log.d("ELM327", "Reset command received");
+                            mLatestCmd = CMD_TYPE.ELM_RESET;
+                            break;
+                        case ECU_CONNECT:
+                            Log.d("ELM327", "ECU connect command received");
+                            mLatestCmd = CMD_TYPE.ECU_CONNECT;
+                            break;
+                        case ELM_REQUEST_DATA:
+                            mDataRequestCmd = mBundle.getString("PARAM_REQ");
+                            Log.d("ELM327", "ECU request data command received: " + mDataRequestCmd);
+                            mLatestCmd = CMD_TYPE.ELM_REQUEST_DATA;
+                            break;
+                        case ELM_REQUEST_SUPPORTED_PARAMS:
+                            mLatestCmd = CMD_TYPE.ELM_REQUEST_SUPPORTED_PARAMS;
+
+                            Log.d("ELM327", "PID Support Request command received");
+                            break;
+                        case ELM_RESET_DATA:
+                            activePIDs.clear();
+                            break;
+                        default:
+                            Log.d("ELM327", "Unknown command type received");
+                            break;
+                    }
+                } else {
+                    Log.d("ELM327", "inHandler message received without command");
+                }
+            }
+        };
         while (true) {
             //Run loop!!
             switch (mLatestCmd) {
@@ -401,6 +455,12 @@ public class ELM327 extends Thread {
                         Log.d("ELM327", "PID Request Data for" + p.getCommand());
                         String response = request(p.getCommand());
                         p.update(response);
+                        ArrayList<PID.Element> elList = p.getAllElements();
+                        for(PID.Element el : elList) {
+                            if(el.mType== PID.ElementType.VALUE) {
+                                sendDisplayUpdate(el.mLongName, el.mValueElementValue);
+                            }
+                        }
                     }
                     break;
                 case BT_ELM_CONNECT:
@@ -446,10 +506,12 @@ public class ELM327 extends Thread {
                     mLatestCmd = CMD_TYPE.NONE;             // Reset
                     break;
                 case ELM_REQUEST_DATA:
-                    requestParameter(mDataRequestCmd);
-                    mLatestCmd = CMD_TYPE.NONE;
+                    if(!mDataRequestCmd.isEmpty()) {
+                        requestParameter(mDataRequestCmd);
+                        mLatestCmd = CMD_TYPE.NONE;
+                    }
                     break;
-                case ELM_REQUEST_SUPPORTED_PIDS:
+                case ELM_REQUEST_SUPPORTED_PARAMS:
                     int numSupportedPIDs = getSupportedPIDs();
                     mLatestCmd = CMD_TYPE.NONE;
                     break;
@@ -460,5 +522,17 @@ public class ELM327 extends Thread {
             }
         }
 
+        }
+
+        private void sendDisplayUpdate(String paramName, float value) {
+            value = 100;
+            Bundle updateBundle = new Bundle();
+            Message msg = outHandlerDisp.obtainMessage();
+            updateBundle.putSerializable("CMD", DrawableSurfaceView.VIEW_CMD_TYPE.UPDATE);
+            updateBundle.putSerializable("OBJ", DrawableSurfaceView.VIEW_OBJ_TYPE.READOUT);
+            updateBundle.putString("IDENT", paramName);
+            updateBundle.putFloat("VAL", value);
+            msg.setData(updateBundle);
+            outHandlerDisp.sendMessage(msg);
         }
     }
