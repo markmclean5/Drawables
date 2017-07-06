@@ -135,6 +135,8 @@ public class MainActivity extends Activity {
          * ELM327 setup
          * **********************************************/
         mELM327 = new ELM327(this, mHandler, drawableHandler);
+        mELM327.start();
+
 
         /* **********************************************
          * Communication Logging
@@ -310,7 +312,6 @@ public class MainActivity extends Activity {
         if (pairedDevices.size() > 0) {
             for (BluetoothDevice device : pairedDevices) {
                 if(device.getName().equalsIgnoreCase("OBDII")) {
-                    mELM327.start();
                     String addr = device.getAddress();
                     statusDialog.setMessage("BT: Connecting to " + addr);
                     sendElmConnectCmd(addr);
