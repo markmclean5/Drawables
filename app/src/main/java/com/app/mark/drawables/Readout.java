@@ -33,6 +33,10 @@ public class Readout {
     float mNameString;
     float mValue = 0;
 
+    // Location
+    int mXposn;
+    int mYposn;
+
     // Configuration
     int numDecPlaces;
     int numIntDigits;
@@ -41,11 +45,13 @@ public class Readout {
     int nameTextSize;
 
 
-    public Readout(Context context, String identifier) {
+    public Readout(Context context, String identifier, int x_posn, int y_posn) {
         mContext = context;
         mIdentifier = identifier;
         mLinePaint = new Paint();
         mLinePaint.setAntiAlias(true);
+        mXposn = x_posn;
+        mYposn = y_posn;
         //parsed = parse();
     }
 
@@ -65,10 +71,11 @@ public class Readout {
 
 
         mCanvas = canvas;
-        mLinePaint.setStrokeWidth(30);
-        mLinePaint.setTextSize(70);
-        mCanvas.drawText(Float.toString(mValue), 200, 200, mLinePaint);
-        mCanvas.drawText(mIdentifier, 200, 300, mLinePaint);
+        //mLinePaint.setStrokeWidth(30);
+        int textSize = 70;
+        mLinePaint.setTextSize(textSize);
+        mCanvas.drawText(Float.toString(mValue), mXposn, mYposn, mLinePaint);
+        mCanvas.drawText(mIdentifier, mXposn, mYposn+textSize+10, mLinePaint);
     }
 
 

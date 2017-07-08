@@ -80,7 +80,7 @@ public class MainActivity extends Activity {
                         case ELM_REQUEST_SUPPORTED_PARAMS:
                             String name = inputBundle.getString("NAME");
                             if(!name.contains("PID")) {
-                                Log.d("MA", "ECU Request supported PIDs response received: " + name);
+                                //Log.d("MA", "ECU Request supported PIDs response received: " + name);
                                 parameterListAdapter.add(name);
                                 parameterListAdapter.notifyDataSetChanged();
                             }
@@ -94,7 +94,7 @@ public class MainActivity extends Activity {
             }
             // Processing of communication log events
             else if (inputBundle.containsKey("COMM_STRING")) {
-                Log.d("MA","Comm string received");
+                //Log.d("MA","Comm string received");
                 commLogAdapter.add(inputBundle.getString("COMM_STRING"));
                 commLogAdapter.notifyDataSetChanged();
                 commLogListView.setSelection(commLogAdapter.getCount()-1); // auto scroll
@@ -167,7 +167,7 @@ public class MainActivity extends Activity {
         parameterListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String value = parameterListAdapter.getItem(position);
+                String value = parameterListAdapter.getItem(position-1);
                 Log.d("MA", "Selected Parameter: " + value);
                 sendRequestDataCmd(value);
                 sendAddCmd(DrawableSurfaceView.VIEW_OBJ_TYPE.READOUT, value);

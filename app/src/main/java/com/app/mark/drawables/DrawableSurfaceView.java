@@ -134,6 +134,8 @@ class DrawableSurfaceView extends SurfaceView implements SurfaceHolder.Callback 
         int mCanvasWidth = 1;
         int mCanvasHeight = 1;
 
+        int numReadouts = 0;
+
 
         /** Test line paint */
         private Paint mLinePaint;
@@ -172,15 +174,17 @@ class DrawableSurfaceView extends SurfaceView implements SurfaceHolder.Callback 
                     if (G.getIdent() == ident) {
                         G.setValue(value);
                         break;
-                    } else
-                        Log.d("gauge update:", "could not find" + ident);
+                    }
                 }
             }
         }
 
 
         public void addReadout(String ident) {
-            mReadoutVector.add(new Readout(getContext(), ident));
+            numReadouts++;
+            int xOffset = 100;
+            int yOffset = 150;
+            mReadoutVector.add(new Readout(getContext(), ident, xOffset, yOffset*(numReadouts+1)));
 
         }
 
@@ -200,8 +204,7 @@ class DrawableSurfaceView extends SurfaceView implements SurfaceHolder.Callback 
                 if (R.getIdent() == ident) {
                     R.setValue(value);
                     break;
-                } else
-                    Log.d("readout update:", "could not find" + ident);
+                }
             }
         }
 

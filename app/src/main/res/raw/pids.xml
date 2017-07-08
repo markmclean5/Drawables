@@ -1514,5 +1514,686 @@
         </element1>
     </pid_0123>
 
+    <!-- PID 0124 -->
+    <pid_0124>
+        <name>O2 Sens 1 RAT + V</name>
+        <type>parameter</type>
+        <num_bytes>2</num_bytes>
+        <num_elements>2</num_elements>
+        <mode>01</mode>
+        <command>24</command>
+        <element1>
+            <type>value</type>
+            <position>A7</position>
+            <num_bits>16</num_bits>
+            <short_name>O2_SENS_1_RATIO</short_name>
+            <long_name>O2 Sensor 1 Fuel-Air Ratio</long_name>
+            <min>0</min>
+            <max>2</max>
+            <units>(ratio)</units>
+            <scaling>0.00003051757</scaling>
+            <offset>0.0</offset>
+        </element1>
+        <element2>
+            <type>value</type>
+            <position>C7</position>
+            <num_bits>16</num_bits>
+            <short_name>O2_SENS_1_RATIO_VOLT</short_name>
+            <long_name>O2 Sensor 1 Ratio Voltage</long_name>
+            <min>0</min>
+            <max>8</max>
+            <units>V</units>
+            <scaling>0.00012207031</scaling>
+            <offset>0</offset>
+        </element2>
+    </pid_0124>
+
+    <!-- PID 0125 -->
+    <pid_0125>
+        <name>O2 Sens 2 RAT + V</name>
+        <type>parameter</type>
+        <num_bytes>2</num_bytes>
+        <num_elements>2</num_elements>
+        <mode>01</mode>
+        <command>25</command>
+        <element1>
+            <type>value</type>
+            <position>A7</position>
+            <num_bits>16</num_bits>
+            <short_name>O2_SENS_2_RATIO</short_name>
+            <long_name>O2 Sensor 2 Fuel-Air Ratio</long_name>
+            <min>0</min>
+            <max>2</max>
+            <units>(ratio)</units>
+            <scaling>0.00003051757</scaling>
+            <offset>0.0</offset>
+        </element1>
+        <element2>
+            <type>value</type>
+            <position>C7</position>
+            <num_bits>16</num_bits>
+            <short_name>O2_SENS_2_RATIO_VOLT</short_name>
+            <long_name>O2 Sensor 2 Ratio Voltage</long_name>
+            <min>0</min>
+            <max>8</max>
+            <units>V</units>
+            <scaling>0.00012207031</scaling>
+            <offset>0</offset>
+        </element2>
+    </pid_0125>
+
+    <!-- PID 0126 -->
+    <pid_0126>
+        <name>O2 Sens 3 RAT + V</name>
+        <type>parameter</type>
+        <num_bytes>2</num_bytes>
+        <num_elements>2</num_elements>
+        <mode>01</mode>
+        <command>26</command>
+        <element1>
+            <type>value</type>
+            <position>A7</position>
+            <num_bits>16</num_bits>
+            <short_name>O2_SENS_3_RATIO</short_name>
+            <long_name>O2 Sensor 3 Fuel-Air Ratio</long_name>
+            <min>0</min>
+            <max>2</max>
+            <units>(ratio)</units>
+            <scaling>0.00003051757</scaling>
+            <offset>0.0</offset>
+        </element1>
+        <element2>
+            <type>value</type>
+            <position>C7</position>
+            <num_bits>16</num_bits>
+            <short_name>O2_SENS_3_RATIO_VOLT</short_name>
+            <long_name>O2 Sensor 3 Ratio Voltage</long_name>
+            <min>0</min>
+            <max>8</max>
+            <units>V</units>
+            <scaling>0.00012207031</scaling>
+            <offset>0</offset>
+        </element2>
+    </pid_0126>
+
+    <!-- PID 0127 -->
+    <pid_0127>
+        <name>O2 Sens 4 RAT + V</name>
+        <type>parameter</type>
+        <num_bytes>2</num_bytes>
+        <num_elements>2</num_elements>
+        <mode>01</mode>
+        <command>27</command>
+        <element1>
+            <type>value</type>
+            <position>A7</position>
+            <num_bits>16</num_bits>
+            <short_name>O2_SENS_4_RATIO</short_name>
+            <long_name>O2 Sensor 4 Fuel-Air Ratio</long_name>
+            <min>0</min>
+            <max>2</max>
+            <units>(ratio)</units>
+            <scaling>0.00003051757</scaling>
+            <offset>0.0</offset>
+        </element1>
+        <element2>
+            <type>value</type>
+            <position>C7</position>
+            <num_bits>16</num_bits>
+            <short_name>O2_SENS_4_RATIO_VOLT</short_name>
+            <long_name>O2 Sensor 4 Ratio Voltage</long_name>
+            <min>0</min>
+            <max>8</max>
+            <units>V</units>
+            <scaling>0.00012207031</scaling>
+            <offset>0</offset>
+        </element2>
+    </pid_0127>
+
+    <!-- PID 0128 -->
+    <pid_0128>
+        <name>O2 Sens 5 RAT + V</name>
+        <type>parameter</type>
+        <num_bytes>2</num_bytes>
+        <num_elements>2</num_elements>
+        <mode>01</mode>
+        <command>28</command>
+        <element1>
+            <type>value</type>
+            <position>A7</position>
+            <num_bits>16</num_bits>
+            <short_name>O2_SENS_5_RATIO</short_name>
+            <long_name>O2 Sensor 5 Fuel-Air Ratio</long_name>
+            <min>0</min>
+            <max>2</max>
+            <units>(ratio)</units>
+            <scaling>0.00003051757</scaling>
+            <offset>0.0</offset>
+        </element1>
+        <element2>
+            <type>value</type>
+            <position>C7</position>
+            <num_bits>16</num_bits>
+            <short_name>O2_SENS_5_RATIO_VOLT</short_name>
+            <long_name>O2 Sensor 5 Ratio Voltage</long_name>
+            <min>0</min>
+            <max>8</max>
+            <units>V</units>
+            <scaling>0.00012207031</scaling>
+            <offset>0</offset>
+        </element2>
+    </pid_0128>
+
+    <!-- PID 0129 -->
+    <pid_0129>
+        <name>O2 Sens 6 RAT + V</name>
+        <type>parameter</type>
+        <num_bytes>2</num_bytes>
+        <num_elements>2</num_elements>
+        <mode>01</mode>
+        <command>29</command>
+        <element1>
+            <type>value</type>
+            <position>A7</position>
+            <num_bits>16</num_bits>
+            <short_name>O2_SENS_6_RATIO</short_name>
+            <long_name>O2 Sensor 6 Fuel-Air Ratio</long_name>
+            <min>0</min>
+            <max>2</max>
+            <units>(ratio)</units>
+            <scaling>0.00003051757</scaling>
+            <offset>0.0</offset>
+        </element1>
+        <element2>
+            <type>value</type>
+            <position>C7</position>
+            <num_bits>16</num_bits>
+            <short_name>O2_SENS_6_RATIO_VOLT</short_name>
+            <long_name>O2 Sensor 6 Ratio Voltage</long_name>
+            <min>0</min>
+            <max>8</max>
+            <units>V</units>
+            <scaling>0.00012207031</scaling>
+            <offset>0</offset>
+        </element2>
+    </pid_0129>
+
+    <!-- PID 012A -->
+    <pid_012A>
+        <name>O2 Sens 7 RAT + V</name>
+        <type>parameter</type>
+        <num_bytes>2</num_bytes>
+        <num_elements>2</num_elements>
+        <mode>01</mode>
+        <command>2A</command>
+        <element1>
+            <type>value</type>
+            <position>A7</position>
+            <num_bits>16</num_bits>
+            <short_name>O2_SENS_7_RATIO</short_name>
+            <long_name>O2 Sensor 7 Fuel-Air Ratio</long_name>
+            <min>0</min>
+            <max>2</max>
+            <units>(ratio)</units>
+            <scaling>0.00003051757</scaling>
+            <offset>0.0</offset>
+        </element1>
+        <element2>
+            <type>value</type>
+            <position>C7</position>
+            <num_bits>16</num_bits>
+            <short_name>O2_SENS_7_RATIO_VOLT</short_name>
+            <long_name>O2 Sensor 7 Ratio Voltage</long_name>
+            <min>0</min>
+            <max>8</max>
+            <units>V</units>
+            <scaling>0.00012207031</scaling>
+            <offset>0</offset>
+        </element2>
+    </pid_012A>
+
+    <!-- PID 012B -->
+    <pid_012B>
+        <name>O2 Sens 8 RAT + V</name>
+        <type>parameter</type>
+        <num_bytes>2</num_bytes>
+        <num_elements>2</num_elements>
+        <mode>01</mode>
+        <command>2B</command>
+        <element1>
+            <type>value</type>
+            <position>A7</position>
+            <num_bits>16</num_bits>
+            <short_name>O2_SENS_8_RATIO</short_name>
+            <long_name>O2 Sensor 8 Fuel-Air Ratio</long_name>
+            <min>0</min>
+            <max>2</max>
+            <units>(ratio)</units>
+            <scaling>0.00003051757</scaling>
+            <offset>0.0</offset>
+        </element1>
+        <element2>
+            <type>value</type>
+            <position>C7</position>
+            <num_bits>16</num_bits>
+            <short_name>O2_SENS_8_RATIO_VOLT</short_name>
+            <long_name>O2 Sensor 8 Ratio Voltage</long_name>
+            <min>0</min>
+            <max>8</max>
+            <units>V</units>
+            <scaling>0.00012207031</scaling>
+            <offset>0</offset>
+        </element2>
+    </pid_012B>
+
+
+    <!-- PID 012C -->
+    <pid_012C>
+        <name>Commanded EGR</name>
+        <type>parameter</type>
+        <num_bytes>1</num_bytes>
+        <num_elements>1</num_elements>
+        <mode>01</mode>
+        <command>2C</command>
+        <element1>
+            <type>value</type>
+            <position>A7</position>
+            <num_bits>8</num_bits>
+            <short_name>CMD_EGR</short_name>
+            <long_name>Commanded EGR</long_name>
+            <min>0</min>
+            <max>100</max>
+            <units>%</units>
+            <scaling>0.39215686274</scaling>
+            <offset>0.0</offset>
+        </element1>
+    </pid_012C>
+
+    <!-- PID 012D -->
+    <pid_012D>
+        <name>EGR Error</name>
+        <type>parameter</type>
+        <num_bytes>1</num_bytes>
+        <num_elements>1</num_elements>
+        <mode>01</mode>
+        <command>2D</command>
+        <element1>
+            <type>value</type>
+            <position>A7</position>
+            <num_bits>8</num_bits>
+            <short_name>EGR_ERROR</short_name>
+            <long_name>EGR Error</long_name>
+            <min>-100</min>
+            <max>99.2</max>
+            <units>%</units>
+            <scaling>0.78125</scaling>
+            <offset>-100.0</offset>
+        </element1>
+    </pid_012D>
+
+    <!-- PID 012E -->
+    <pid_012E>
+        <name>Cmd Evap Purge</name>
+        <type>parameter</type>
+        <num_bytes>1</num_bytes>
+        <num_elements>1</num_elements>
+        <mode>01</mode>
+        <command>2E</command>
+        <element1>
+            <type>value</type>
+            <position>A7</position>
+            <num_bits>8</num_bits>
+            <short_name>CMD_EVAP_PURGE</short_name>
+            <long_name>Commanded Evap. Purge</long_name>
+            <min>0</min>
+            <max>100</max>
+            <units>%</units>
+            <scaling>0.39215686274</scaling>
+            <offset>0</offset>
+        </element1>
+    </pid_012E>
+
+    <!-- PID 012F -->
+    <pid_012F>
+        <name>Fuel Tank Level Input</name>
+        <type>parameter</type>
+        <num_bytes>1</num_bytes>
+        <num_elements>1</num_elements>
+        <mode>01</mode>
+        <command>2F</command>
+        <element1>
+            <type>value</type>
+            <position>A7</position>
+            <num_bits>8</num_bits>
+            <short_name>FUEL_TANK_LEVEL</short_name>
+            <long_name>Fuel Tank Level Input</long_name>
+            <min>0</min>
+            <max>100</max>
+            <units>%</units>
+            <scaling>0.39215686274</scaling>
+            <offset>0</offset>
+        </element1>
+    </pid_012F>
+
+    <!-- PID 0130 -->
+    <pid_0130>
+        <name>Warmups Since Codes Cleared</name>
+        <type>parameter</type>
+        <num_bytes>1</num_bytes>
+        <num_elements>1</num_elements>
+        <mode>01</mode>
+        <command>30</command>
+        <element1>
+            <type>value</type>
+            <position>A7</position>
+            <num_bits>8</num_bits>
+            <short_name>CODE_CLR_WARMUPS</short_name>
+            <long_name>Warmup Since Codes Cleared</long_name>
+            <min>0</min>
+            <max>255</max>
+            <units>#</units>
+            <scaling>1</scaling>
+            <offset>0</offset>
+        </element1>
+    </pid_0130>
+
+
+    <!-- PID 0131 -->
+    <pid_0131>
+        <name>Distance Traveled Since Codes Cleared</name>
+        <type>parameter</type>
+        <num_bytes>1</num_bytes>
+        <num_elements>1</num_elements>
+        <mode>01</mode>
+        <command>31</command>
+        <element1>
+            <type>value</type>
+            <position>A7</position>
+            <num_bits>16</num_bits>
+            <short_name>CODE_CLR_DIST</short_name>
+            <long_name>Distance Traveled Since Codes Cleared</long_name>
+            <min>0</min>
+            <max>65535</max>
+            <units>km</units>
+            <scaling>1</scaling>
+            <offset>0</offset>
+        </element1>
+    </pid_0131>
+
+    <!-- PID 0132 -->
+    <pid_0132>
+        <name>Evap System Vapor Pressure</name>
+        <type>parameter</type>
+        <num_bytes>1</num_bytes>
+        <num_elements>1</num_elements>
+        <mode>01</mode>
+        <command>32</command>
+        <element1>
+            <type>value</type>
+            <position>A7</position>
+            <num_bits>16</num_bits>
+            <short_name>EVAP_SYS_PRESS</short_name>
+            <long_name>Evap System Vapor Pressure</long_name>
+            <min>-8192</min>
+            <max>8191.75</max>
+            <units>Pa</units>
+            <scaling>0.25</scaling>
+            <offset>0</offset>
+        </element1>
+    </pid_0132>
+
+    <!-- PID 0133 -->
+    <pid_0133>
+        <name>Absolute Barometric Pressure</name>
+        <type>parameter</type>
+        <num_bytes>1</num_bytes>
+        <num_elements>1</num_elements>
+        <mode>01</mode>
+        <command>33</command>
+        <element1>
+            <type>value</type>
+            <position>A7</position>
+            <num_bits>8</num_bits>
+            <short_name>ABS_BARO_PRESS</short_name>
+            <long_name>Absolute Barometric Pressure</long_name>
+            <min>0</min>
+            <max>255</max>
+            <units>kPa</units>
+            <scaling>1</scaling>
+            <offset>0</offset>
+        </element1>
+    </pid_0133>
+
+    <!-- PID 0134 Skipped Oxygen Sensor 1 Fuel–Air Equivalence Ratio, Current -->
+    <!-- PID 0135 Skipped Oxygen Sensor 2 Fuel–Air Equivalence Ratio, Current -->
+    <!-- PID 0136 Skipped Oxygen Sensor 3 Fuel–Air Equivalence Ratio, Current -->
+    <!-- PID 0137 Skipped Oxygen Sensor 4 Fuel–Air Equivalence Ratio, Current -->
+    <!-- PID 0138 Skipped Oxygen Sensor 5 Fuel–Air Equivalence Ratio, Current -->
+    <!-- PID 0139 Skipped Oxygen Sensor 6 Fuel–Air Equivalence Ratio, Current -->
+    <!-- PID 013A Skipped Oxygen Sensor 7 Fuel–Air Equivalence Ratio, Current -->
+    <!-- PID 013B Skipped Oxygen Sensor 8 Fuel–Air Equivalence Ratio, Current -->
+
+    <!-- PID 013C -->
+    <pid_013C>
+        <name>Catalyst Temperature Bank 1 Sensor 1</name>
+        <type>parameter</type>
+        <num_bytes>1</num_bytes>
+        <num_elements>1</num_elements>
+        <mode>01</mode>
+        <command>3C</command>
+        <element1>
+            <type>value</type>
+            <position>A7</position>
+            <num_bits>16</num_bits>
+            <short_name>CAT_TEMP_B1_S1</short_name>
+            <long_name>Catalyst Temperature Bank 1 Sensor 1</long_name>
+            <min>-40</min>
+            <max>6513.5</max>
+            <units>deg C</units>
+            <scaling>0.1</scaling>
+            <offset>-40</offset>
+        </element1>
+    </pid_013C>
+
+    <!-- PID 013D -->
+    <pid_013D>
+        <name>Catalyst Temperature Bank 2 Sensor 1</name>
+        <type>parameter</type>
+        <num_bytes>1</num_bytes>
+        <num_elements>1</num_elements>
+        <mode>01</mode>
+        <command>3D</command>
+        <element1>
+            <type>value</type>
+            <position>A7</position>
+            <num_bits>16</num_bits>
+            <short_name>CAT_TEMP_B2_S1</short_name>
+            <long_name>Catalyst Temperature Bank 2 Sensor 1</long_name>
+            <min>-40</min>
+            <max>6513.5</max>
+            <units>deg C</units>
+            <scaling>0.1</scaling>
+            <offset>-40</offset>
+        </element1>
+    </pid_013D>
+
+
+    <!-- PID 013E -->
+    <pid_013E>
+        <name>Catalyst Temperature Bank 1 Sensor 2</name>
+        <type>parameter</type>
+        <num_bytes>1</num_bytes>
+        <num_elements>1</num_elements>
+        <mode>01</mode>
+        <command>3E</command>
+        <element1>
+            <type>value</type>
+            <position>A7</position>
+            <num_bits>16</num_bits>
+            <short_name>CAT_TEMP_B1_S2</short_name>
+            <long_name>Catalyst Temperature Bank 1 Sensor 2</long_name>
+            <min>-40</min>
+            <max>6513.5</max>
+            <units>deg C</units>
+            <scaling>0.1</scaling>
+            <offset>-40</offset>
+        </element1>
+    </pid_013E>
+
+    <!-- PID 013F -->
+    <pid_013F>
+        <name>Catalyst Temperature Bank 2 Sensor 2</name>
+        <type>parameter</type>
+        <num_bytes>1</num_bytes>
+        <num_elements>1</num_elements>
+        <mode>01</mode>
+        <command>3F</command>
+        <element1>
+            <type>value</type>
+            <position>A7</position>
+            <num_bits>16</num_bits>
+            <short_name>CAT_TEMP_B2_S2</short_name>
+            <long_name>Catalyst Temperature Bank 2 Sensor 2</long_name>
+            <min>-40</min>
+            <max>6513.5</max>
+            <units>deg C</units>
+            <scaling>0.1</scaling>
+            <offset>-40</offset>
+        </element1>
+    </pid_013F>
+
+    <!-- PID 0141 Monitor status this drive cycle -->
+
+    <!-- PID 0142 -->
+    <pid_0142>
+        <name>Control Module Voltage</name>
+        <type>parameter</type>
+        <num_bytes>1</num_bytes>
+        <num_elements>1</num_elements>
+        <mode>01</mode>
+        <command>42</command>
+        <element1>
+            <type>value</type>
+            <position>A7</position>
+            <num_bits>16</num_bits>
+            <short_name>CTRL_MOD_VOLT</short_name>
+            <long_name>Control Module Voltage</long_name>
+            <min>0</min>
+            <max>65.535</max>
+            <units>V</units>
+            <scaling>0.001</scaling>
+            <offset>0.0</offset>
+        </element1>
+    </pid_0142>
+
+    <!-- PID 0143 -->
+    <pid_0143>
+        <name>Absolute Load Value</name>
+        <type>parameter</type>
+        <num_bytes>1</num_bytes>
+        <num_elements>1</num_elements>
+        <mode>01</mode>
+        <command>43</command>
+        <element1>
+            <type>value</type>
+            <position>A7</position>
+            <num_bits>16</num_bits>
+            <short_name>ABS_LOAD_VAL</short_name>
+            <long_name>Absolute Load Value</long_name>
+            <min>0</min>
+            <max>25700</max>
+            <units>%</units>
+            <scaling>0.39215686274</scaling>
+            <offset>0.0</offset>
+        </element1>
+    </pid_0143>
+
+    <!-- PID 0144 -->
+    <pid_0144>
+        <name>Fuel-Air Commanded Equiv Ratio</name>
+        <type>parameter</type>
+        <num_bytes>1</num_bytes>
+        <num_elements>1</num_elements>
+        <mode>01</mode>
+        <command>44</command>
+        <element1>
+            <type>value</type>
+            <position>A7</position>
+            <num_bits>16</num_bits>
+            <short_name>CMD_FUEL_AIR_RATIO</short_name>
+            <long_name>Fuel Air Commanded Ratio</long_name>
+            <min>0</min>
+            <max>2</max>
+            <units>(ratio)</units>
+            <scaling>0.00003051757</scaling>
+            <offset>0.0</offset>
+        </element1>
+    </pid_0144>
+
+    <!-- PID 0145 -->
+    <pid_0145>
+        <name>Relative Throttle Position</name>
+        <type>parameter</type>
+        <num_bytes>1</num_bytes>
+        <num_elements>1</num_elements>
+        <mode>01</mode>
+        <command>45</command>
+        <element1>
+            <type>value</type>
+            <position>A7</position>
+            <num_bits>8</num_bits>
+            <short_name>REL_THROTTLE_POSN</short_name>
+            <long_name>Relative Throttle Position</long_name>
+            <min>0</min>
+            <max>100</max>
+            <units>%</units>
+            <scaling>0.39215686274</scaling>
+            <offset>0.0</offset>
+        </element1>
+    </pid_0145>
+
+    <!-- PID 0146 -->
+    <pid_0146>
+        <name>Ambient Air Temperature</name>
+        <type>parameter</type>
+        <num_bytes>1</num_bytes>
+        <num_elements>1</num_elements>
+        <mode>01</mode>
+        <command>46</command>
+        <element1>
+            <type>value</type>
+            <position>A7</position>
+            <num_bits>8</num_bits>
+            <short_name>AMB_AIR_TEMP</short_name>
+            <long_name>Ambient Air Temperature</long_name>
+            <min>-40</min>
+            <max>215</max>
+            <units>deg C</units>
+            <scaling>1.0</scaling>
+            <offset>-40.0</offset>
+        </element1>
+    </pid_0146>
+
+    <!-- PID 0147 -->
+    <pid_0147>
+        <name>Absolute Throttle Position B</name>
+        <type>parameter</type>
+        <num_bytes>1</num_bytes>
+        <num_elements>1</num_elements>
+        <mode>01</mode>
+        <command>47</command>
+        <element1>
+            <type>value</type>
+            <position>A7</position>
+            <num_bits>8</num_bits>
+            <short_name>ABS_THROTTLE_POSN_B</short_name>
+            <long_name>Absolute Throttle Position B</long_name>
+            <min>0</min>
+            <max>100</max>
+            <units>%</units>
+            <scaling>0.39215686274</scaling>
+            <offset>0</offset>
+        </element1>
+    </pid_0147>
 
 </pids>

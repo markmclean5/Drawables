@@ -311,11 +311,11 @@ public class ELM327 extends Thread {
         String requestString = "0100";
         while(!complete) {
             PID Pid0100 = new PID(mContext, requestString);
-            Log.d("ELM327", "GetSupportedPIDs command" + Pid0100.getCommand());
+            //Log.d("ELM327", "GetSupportedPIDs command" + Pid0100.getCommand());
             String response = request(Pid0100.getCommand());
-            Log.d("ELM327", "GetSupportedPIDs response" + response);
+            //Log.d("ELM327", "GetSupportedPIDs response" + response);
             Pid0100.update(response);
-            Pid0100.printData();
+            //Pid0100.printData();
             ArrayList<PID.Element> supportPidElements = Pid0100.getAllElements();
             boolean continueRequests = false;
             for(PID.Element E : supportPidElements) {
@@ -323,14 +323,14 @@ public class ELM327 extends Thread {
                 {
                     continueRequests = E.mBoolState;
                     if(E.mBoolState) {
-                        Log.d("ELM327", "processing suported PID element" + E.mLongName);
-                        Log.d("ELM327", "Corresponding command: " + E.mShortName);
+                        //Log.d("ELM327", "processing suported PID element" + E.mLongName);
+                        //Log.d("ELM327", "Corresponding command: " + E.mShortName);
                         PID p = new PID(mContext, E.mShortName);
                         ArrayList<PID.Element> el = p.getAllElements();
                         if(p.mType != PID.PIDType.SUPPORT) {
                             for(PID.Element e : el) {
                                 // Send message of supported element
-                                Log.d("ELM327", " --- element name: " + e.mLongName);
+                                //Log.d("ELM327", " --- element name: " + e.mLongName);
                                 elmSupportedPIDsResp(e.mLongName);
                             }
                         }
@@ -356,86 +356,84 @@ public class ELM327 extends Thread {
 
     @Override
     public void run() {
-        Log.d("ELM327", "RUNLOOP PRE LOOPER PREPARE~~~~~~~~~~");
         Looper.prepare();
-        Log.d("ELM327", "RUNLOOP~~~~~~~~~~");
-
         Looper.myQueue().addIdleHandler(new MessageQueue.IdleHandler() {
             @Override
             public boolean queueIdle() {
                 // ... Do some jazz
-                Log.d("ELM327", "Idle Handler >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
-                switch (mLatestCmd) {
-                    case NONE:
-                        // Update the active PID list
-                        for(PID p : activePIDs) {
-                            Log.d("ELM327", "PID Request Data for" + p.getCommand());
-                            String response = request(p.getCommand());
-                            p.update(response);
-                            ArrayList<PID.Element> elList = p.getAllElements();
-                            for(PID.Element el : elList) {
-                                if(el.mType== PID.ElementType.VALUE) {
-                                    sendDisplayUpdate(el.mLongName, el.mValueElementValue);
+                while(Looper.myQueue().isIdle()) {
+                    switch (mLatestCmd) {
+                        case NONE:
+                            // Update the active PID list
+                            for(PID p : activePIDs) {
+                                Log.d("ELM327", "PID Request Data for" + p.getCommand());
+                                String response = request(p.getCommand());
+                                p.update(response);
+                                ArrayList<PID.Element> elList = p.getAllElements();
+                                for(PID.Element el : elList) {
+                                    if(el.mType== PID.ElementType.VALUE) {
+                                        sendDisplayUpdate(el.mLongName, el.mValueElementValue);
+                                    }
                                 }
                             }
-                        }
-                        break;
-                    case BT_ELM_CONNECT:
-                        if (!btConnected && !elmConnected) {
-                            Log.d("ELM327", "Run() Bluetooth connect  to " + mBluetoothAddr);
-                            btConnected = btConnect(mBluetoothAddr);
-                        }
-                        if(!btConnected) {
-                            Log.d("ELM327", "Bluetooth connect error");
-                        }
-                        else
-                            Log.d("ELM327", "Connect called while already connected");
-                        if (btConnected && !elmConnected) {
-                            Log.d("ELMThread", "Bluetooth connect success, connecting to ELM");
-                            String elmVers = reset();
-                            Log.d("ELM327", "ELM Version string: " + elmVers);
-                            if (elmVers.startsWith("ELM327 v")) {
-                                elmConnected = true;
-                                Log.d("ELM327", "ELM connect success");
-                                btConnectResp(btConnected, elmConnected, elmVers);
-                            } else {
-                                Log.d("ELM327", "ELM connect error");
-                                elmConnected = false;
+                            break;
+                        case BT_ELM_CONNECT:
+                            if (!btConnected && !elmConnected) {
+                                Log.d("ELM327", "Run() Bluetooth connect  to " + mBluetoothAddr);
+                                btConnected = btConnect(mBluetoothAddr);
                             }
-                        }
-                        mLatestCmd = CMD_TYPE.NONE;             // Reset
-                        break;
-                    case ELM_RESET:
-                        mLatestCmd = CMD_TYPE.NONE;             // Reset
-                        break;
-                    case ECU_CONNECT:
-                        if(!btConnected || !elmConnected)
-                            Log.d("ELMThread", "ECU connect called while BT or ELM disconnected");
-                        else if(!ecuConnected){
-                            ecuConnected = false;
-                            String proto = ecuConnect();
-                            if(!proto.isEmpty()) {
-                                ecuConnected = true;
+                            if(!btConnected) {
+                                Log.d("ELM327", "Bluetooth connect error");
                             }
-                            ecuConnectResp(ecuConnected, proto);
-                        } else
-                            Log.d("ELMThread", "ECU connect called while already connected");
-                        mLatestCmd = CMD_TYPE.NONE;             // Reset
-                        break;
-                    case ELM_REQUEST_DATA:
-                        if(!mDataRequestCmd.isEmpty()) {
-                            requestParameter(mDataRequestCmd);
+                            else
+                                Log.d("ELM327", "Connect called while already connected");
+                            if (btConnected && !elmConnected) {
+                                Log.d("ELMThread", "Bluetooth connect success, connecting to ELM");
+                                String elmVers = reset();
+                                Log.d("ELM327", "ELM Version string: " + elmVers);
+                                if (elmVers.startsWith("ELM327 v")) {
+                                    elmConnected = true;
+                                    Log.d("ELM327", "ELM connect success");
+                                    btConnectResp(btConnected, elmConnected, elmVers);
+                                } else {
+                                    Log.d("ELM327", "ELM connect error");
+                                    elmConnected = false;
+                                }
+                            }
+                            mLatestCmd = CMD_TYPE.NONE;             // Reset
+                            break;
+                        case ELM_RESET:
+                            mLatestCmd = CMD_TYPE.NONE;             // Reset
+                            break;
+                        case ECU_CONNECT:
+                            if(!btConnected || !elmConnected)
+                                Log.d("ELMThread", "ECU connect called while BT or ELM disconnected");
+                            else if(!ecuConnected){
+                                ecuConnected = false;
+                                String proto = ecuConnect();
+                                if(!proto.isEmpty()) {
+                                    ecuConnected = true;
+                                }
+                                ecuConnectResp(ecuConnected, proto);
+                            } else
+                                Log.d("ELMThread", "ECU connect called while already connected");
+                            mLatestCmd = CMD_TYPE.NONE;             // Reset
+                            break;
+                        case ELM_REQUEST_DATA:
+                            if(!mDataRequestCmd.isEmpty()) {
+                                requestParameter(mDataRequestCmd);
+                                mLatestCmd = CMD_TYPE.NONE;
+                            }
+                            break;
+                        case ELM_REQUEST_SUPPORTED_PARAMS:
+                            int numSupportedPIDs = getSupportedPIDs();
                             mLatestCmd = CMD_TYPE.NONE;
-                        }
-                        break;
-                    case ELM_REQUEST_SUPPORTED_PARAMS:
-                        int numSupportedPIDs = getSupportedPIDs();
-                        mLatestCmd = CMD_TYPE.NONE;
-                        break;
-                    default:
-                        Log.d("ELMThread", "Run encountered invalid latest command case");
-                        mLatestCmd = CMD_TYPE.NONE;             // Reset
-                        break;
+                            break;
+                        default:
+                            Log.d("ELMThread", "Run encountered invalid latest command case");
+                            mLatestCmd = CMD_TYPE.NONE;             // Reset
+                            break;
+                    }
                 }
                 return true;
             }
@@ -487,91 +485,10 @@ public class ELM327 extends Thread {
 
         Looper.loop();
 
-
-
-//        while (true) {
-//            //Run loop!!
-//            switch (mLatestCmd) {
-//                case NONE:
-//                    // Update the active PID list
-//                    for(PID p : activePIDs) {
-//                        Log.d("ELM327", "PID Request Data for" + p.getCommand());
-//                        String response = request(p.getCommand());
-//                        p.update(response);
-//                        ArrayList<PID.Element> elList = p.getAllElements();
-//                        for(PID.Element el : elList) {
-//                            if(el.mType== PID.ElementType.VALUE) {
-//                                sendDisplayUpdate(el.mLongName, el.mValueElementValue);
-//                            }
-//                        }
-//                    }
-//                    break;
-//                case BT_ELM_CONNECT:
-//                    if (!btConnected && !elmConnected) {
-//                        Log.d("ELM327", "Run() Bluetooth connect  to " + mBluetoothAddr);
-//                        btConnected = btConnect(mBluetoothAddr);
-//                    }
-//                    if(!btConnected) {
-//                        Log.d("ELM327", "Bluetooth connect error");
-//                    }
-//                    else
-//                        Log.d("ELM327", "Connect called while already connected");
-//                    if (btConnected && !elmConnected) {
-//                        Log.d("ELMThread", "Bluetooth connect success, connecting to ELM");
-//                        String elmVers = reset();
-//                        Log.d("ELM327", "ELM Version string: " + elmVers);
-//                        if (elmVers.startsWith("ELM327 v")) {
-//                            elmConnected = true;
-//                            Log.d("ELM327", "ELM connect success");
-//                            btConnectResp(btConnected, elmConnected, elmVers);
-//                        } else {
-//                            Log.d("ELM327", "ELM connect error");
-//                            elmConnected = false;
-//                        }
-//                    }
-//                    mLatestCmd = CMD_TYPE.NONE;             // Reset
-//                    break;
-//                case ELM_RESET:
-//                    mLatestCmd = CMD_TYPE.NONE;             // Reset
-//                    break;
-//                case ECU_CONNECT:
-//                    if(!btConnected || !elmConnected)
-//                        Log.d("ELMThread", "ECU connect called while BT or ELM disconnected");
-//                    else if(!ecuConnected){
-//                        ecuConnected = false;
-//                        String proto = ecuConnect();
-//                        if(!proto.isEmpty()) {
-//                            ecuConnected = true;
-//                        }
-//                        ecuConnectResp(ecuConnected, proto);
-//                    } else
-//                        Log.d("ELMThread", "ECU connect called while already connected");
-//                    mLatestCmd = CMD_TYPE.NONE;             // Reset
-//                    break;
-//                case ELM_REQUEST_DATA:
-//                    if(!mDataRequestCmd.isEmpty()) {
-//                        requestParameter(mDataRequestCmd);
-//                        mLatestCmd = CMD_TYPE.NONE;
-//                    }
-//                    break;
-//                case ELM_REQUEST_SUPPORTED_PARAMS:
-//                    int numSupportedPIDs = getSupportedPIDs();
-//                    mLatestCmd = CMD_TYPE.NONE;
-//                    break;
-//                default:
-//                    Log.d("ELMThread", "Run encountered invalid latest command case");
-//                    mLatestCmd = CMD_TYPE.NONE;             // Reset
-//                    break;
-//            }
-//
-//        }
-
-
-
         }
 
         private void sendDisplayUpdate(String paramName, float value) {
-            value = 100;
+            //value = 50;
             Bundle updateBundle = new Bundle();
             Message msg = outHandlerDisp.obtainMessage();
             updateBundle.putSerializable("CMD", DrawableSurfaceView.VIEW_CMD_TYPE.UPDATE);
