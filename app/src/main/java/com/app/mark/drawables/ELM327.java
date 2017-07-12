@@ -33,6 +33,7 @@ public class ELM327 extends Thread {
     enum CMD_TYPE {
         NONE,
         BT_ELM_CONNECT,
+        DEBUG_CONNECT,
         ELM_RESET,
         ECU_CONNECT,
         ELM_REQUEST_DATA,
@@ -45,6 +46,8 @@ public class ELM327 extends Thread {
     private boolean btConnected = false;                    // State of bluetooth connection
     private boolean elmConnected = false;                   // State of ELM connection
     private boolean ecuConnected = false;                   // State of ECU connection
+
+    private boolean debugMode = false;
     private String ecuProto;                                // Text string of ECU protocol
     private InputStream mBTinStream;                        // InputStream for bluetooth communication
     private OutputStream mBToutStream;                      // OutputStream for bluetooth communication
@@ -226,7 +229,10 @@ public class ELM327 extends Thread {
     // send string Data - Send Data over Bluetooth!
     private void send(String Data) {
         // send (string Data) - Send Data over Bluetooth!
-        if (btConnected) {
+        if(debugMode) {
+            // Send called in debug mode - do nothing
+        }
+        else if (btConnected) {
             reportComm("TX:  " + Data);
             // Append with CR + NL
             Data += "\r\n";
@@ -245,7 +251,10 @@ public class ELM327 extends Thread {
         byte[] inBytes = new byte[50];
         String Data = "";
         Boolean complete = false;
-        if (btConnected) {
+        if(debugMode) {
+            // Receive called in debug mode - do nothing
+        }
+        else if (btConnected) {
             try {
                 while (!complete) {
                     int numBytes = mBTinStream.available();
@@ -311,18 +320,17 @@ public class ELM327 extends Thread {
         String requestString = "0100";
         while(!complete) {
             PID Pid0100 = new PID(mContext, requestString);
-            //Log.d("ELM327", "GetSupportedPIDs command" + Pid0100.getCommand());
-            String response = request(Pid0100.getCommand());
-            //Log.d("ELM327", "GetSupportedPIDs response" + response);
-            Pid0100.update(response);
-            //Pid0100.printData();
+            if(!debugMode) {
+                String response = request(Pid0100.getCommand());
+                Pid0100.update(response);
+            }
             ArrayList<PID.Element> supportPidElements = Pid0100.getAllElements();
             boolean continueRequests = false;
             for(PID.Element E : supportPidElements) {
                 if(E.mType==PID.ElementType.BOOLEAN)
                 {
                     continueRequests = E.mBoolState;
-                    if(E.mBoolState) {
+                    if(E.mBoolState || debugMode) {
                         //Log.d("ELM327", "processing suported PID element" + E.mLongName);
                         //Log.d("ELM327", "Corresponding command: " + E.mShortName);
                         PID p = new PID(mContext, E.mShortName);
@@ -366,13 +374,15 @@ public class ELM327 extends Thread {
                         case NONE:
                             // Update the active PID list
                             for(PID p : activePIDs) {
-                                Log.d("ELM327", "PID Request Data for" + p.getCommand());
-                                String response = request(p.getCommand());
-                                p.update(response);
-                                ArrayList<PID.Element> elList = p.getAllElements();
-                                for(PID.Element el : elList) {
-                                    if(el.mType== PID.ElementType.VALUE) {
-                                        sendDisplayUpdate(el.mLongName, el.mValueElementValue);
+                                Log.d("ELM327", "PID Request Data for " + p.getCommand());
+                                if(!debugMode) {
+                                    String response = request(p.getCommand());
+                                    p.update(response);
+                                    ArrayList<PID.Element> elList = p.getAllElements();
+                                    for(PID.Element el : elList) {
+                                        if(el.mType== PID.ElementType.VALUE) {
+                                            sendDisplayUpdate(el.mLongName, el.mValueElementValue);
+                                        }
                                     }
                                 }
                             }
@@ -401,6 +411,12 @@ public class ELM327 extends Thread {
                                 }
                             }
                             mLatestCmd = CMD_TYPE.NONE;             // Reset
+                            break;
+                        case DEBUG_CONNECT:
+                            Log.d("ELM327", "Debug Mode Entered");
+                            ecuConnectResp(true, "DEBUG PROTO");
+                            debugMode = true;
+                            mLatestCmd = CMD_TYPE.NONE;
                             break;
                         case ELM_RESET:
                             mLatestCmd = CMD_TYPE.NONE;             // Reset
@@ -485,17 +501,18 @@ public class ELM327 extends Thread {
 
         Looper.loop();
 
-        }
-
-        private void sendDisplayUpdate(String paramName, float value) {
-            //value = 50;
-            Bundle updateBundle = new Bundle();
-            Message msg = outHandlerDisp.obtainMessage();
-            updateBundle.putSerializable("CMD", DrawableSurfaceView.VIEW_CMD_TYPE.UPDATE);
-            updateBundle.putSerializable("OBJ", DrawableSurfaceView.VIEW_OBJ_TYPE.READOUT);
-            updateBundle.putString("IDENT", paramName);
-            updateBundle.putFloat("VAL", value);
-            msg.setData(updateBundle);
-            outHandlerDisp.sendMessage(msg);
-        }
     }
+
+    // Message to DrawableSurfaceView
+    private void sendDisplayUpdate(String paramName, float value) {
+        //value = 50;
+        Bundle updateBundle = new Bundle();
+        Message msg = outHandlerDisp.obtainMessage();
+        updateBundle.putSerializable("CMD", DrawableSurfaceView.VIEW_CMD_TYPE.UPDATE);
+        updateBundle.putSerializable("OBJ", DrawableSurfaceView.VIEW_OBJ_TYPE.READOUT);
+        updateBundle.putString("IDENT", paramName);
+        updateBundle.putFloat("VAL", value);
+        msg.setData(updateBundle);
+        outHandlerDisp.sendMessage(msg);
+    }
+}

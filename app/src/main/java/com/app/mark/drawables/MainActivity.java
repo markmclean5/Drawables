@@ -209,6 +209,16 @@ public class MainActivity extends Activity {
         msg.setData(connectBundle);
         mELM327.getHandler().sendMessage(msg);
     }
+
+
+    // Construct and send message to initiate ELM327 debug mode
+    void sendDebugConnectCmd() {
+        Bundle debugBundle = new Bundle();
+        Message msg = mELM327.getHandler().obtainMessage();
+        debugBundle.putSerializable("CMD", ELM327.CMD_TYPE.DEBUG_CONNECT);
+        msg.setData(debugBundle);
+        mELM327.getHandler().sendMessage(msg);
+    }
     // Construct and send message to request all supported parameters
     void sendRequestSupportedPIDsCmd() {
         Bundle requestBundle = new Bundle();
@@ -307,20 +317,30 @@ public class MainActivity extends Activity {
 
         Log.d("MA", "before bluetooth");
         BluetoothAdapter btAdapter = BluetoothAdapter.getDefaultAdapter();
-        Set<BluetoothDevice> pairedDevices = btAdapter.getBondedDevices();
-        Log.d("MA", "Paired Devices: " + pairedDevices.size());
-        if (pairedDevices.size() > 0) {
-            for (BluetoothDevice device : pairedDevices) {
-                if(device.getName().equalsIgnoreCase("OBDII")) {
-                    String addr = device.getAddress();
-                    statusDialog.setMessage("BT: Connecting to " + addr);
-                    sendElmConnectCmd(addr);
-                    break;
-                }
-            }
 
-        } else
-            Log.d("MainActivity", "Error - no paired bluetooth devices");
+        if(btAdapter != null)
+        {
+            Set<BluetoothDevice> pairedDevices = btAdapter.getBondedDevices();
+            Log.d("MA", "Paired Devices: " + pairedDevices.size());
+            if (pairedDevices.size() > 0) {
+                for (BluetoothDevice device : pairedDevices) {
+                    if(device.getName().equalsIgnoreCase("OBDII")) {
+                        String addr = device.getAddress();
+                        statusDialog.setMessage("BT: Connecting to " + addr);
+                        sendElmConnectCmd(addr);
+                        break;
+                    }
+                }
+
+            } else
+                Log.d("MainActivity", "Error - no paired bluetooth devices");
+        }
+        else {
+            statusDialog.setMessage("No Bluetooth adapter! Entering Debug Mode.");
+            Log.d("MainActivity", "No Bluetooth adapter!!");
+            sendDebugConnectCmd();
+        }
+
     }
 
 
