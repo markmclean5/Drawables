@@ -167,13 +167,14 @@ public class MainActivity extends Activity {
         parameterListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String value = parameterListAdapter.getItem(position-1);
-                Log.d("MA", "Selected Parameter: " + value);
-                sendRequestDataCmd(value);
-                sendAddCmd(DrawableSurfaceView.VIEW_OBJ_TYPE.READOUT, value);
+                String name = parameterListAdapter.getItem(position-1);
+                Log.d("MA", "Selected Parameter: " + name);
+                sendRequestDataCmd(name);
+                sendAddCmd(DrawableSurfaceView.VIEW_OBJ_TYPE.READOUT, name);
             }
         });
 
+        // Call connect method automatically on startup (bluetooth, elm, ecu...)
         connect();
 
         /* **********************************************
@@ -240,6 +241,7 @@ public class MainActivity extends Activity {
         Bundle resetBundle = new Bundle();
         Message msg = mELM327.getHandler().obtainMessage();
         resetBundle.putSerializable("CMD", ELM327.CMD_TYPE.ELM_RESET_DATA);
+        msg.setData(resetBundle);
         mELM327.getHandler().sendMessage(msg);
     }
 

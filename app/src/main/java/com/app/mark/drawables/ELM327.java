@@ -41,6 +41,8 @@ public class ELM327 extends Thread {
         ELM_RESET_DATA
     }
 
+
+
     private CMD_TYPE mLatestCmd = CMD_TYPE.NONE;            // Latest unprocessed command from inHandler
     private String mDataRequestCmd = "";                         // Data request command string
     private boolean btConnected = false;                    // State of bluetooth connection
@@ -395,8 +397,6 @@ public class ELM327 extends Thread {
                             if(!btConnected) {
                                 Log.d("ELM327", "Bluetooth connect error");
                             }
-                            else
-                                Log.d("ELM327", "Connect called while already connected");
                             if (btConnected && !elmConnected) {
                                 Log.d("ELMThread", "Bluetooth connect success, connecting to ELM");
                                 String elmVers = reset();
@@ -425,7 +425,6 @@ public class ELM327 extends Thread {
                             if(!btConnected || !elmConnected)
                                 Log.d("ELMThread", "ECU connect called while BT or ELM disconnected");
                             else if(!ecuConnected){
-                                ecuConnected = false;
                                 String proto = ecuConnect();
                                 if(!proto.isEmpty()) {
                                     ecuConnected = true;
@@ -483,7 +482,6 @@ public class ELM327 extends Thread {
                             break;
                         case ELM_REQUEST_SUPPORTED_PARAMS:
                             mLatestCmd = CMD_TYPE.ELM_REQUEST_SUPPORTED_PARAMS;
-
                             Log.d("ELM327", "PID Support Request command received");
                             break;
                         case ELM_RESET_DATA:
