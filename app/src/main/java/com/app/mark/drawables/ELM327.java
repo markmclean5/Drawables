@@ -310,7 +310,7 @@ public class ELM327 extends Thread {
     }
 
     public String request(String PID) {
-        send(PID);
+        send(PID+"1"); // "1" to return the first response - saves time!
         return receive();
     }
 
