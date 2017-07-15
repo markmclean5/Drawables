@@ -3,59 +3,108 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent">
 
-    <!--Layout for control buttons-->
-    <RelativeLayout
-        android:layout_width="100dp"
-        android:layout_height="fill_parent"
-        android:layout_gravity="end" >
-        <Button
-            android:id="@+id/toggle_log_button"
-            android:layout_width="fill_parent"
-            android:layout_height="75dp"
-            android:text="Comm Log" />
-        <Button
-            android:id="@+id/add_parameter_button"
-            android:layout_below="@id/toggle_log_button"
-            android:layout_width="fill_parent"
-            android:layout_height="75dp"
-            android:text="Add Readout" />
-    </RelativeLayout>
 
-    <RelativeLayout
+    <!--Overall Layout-->
+    <LinearLayout
+        android:orientation="vertical"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent">
+        android:layout_height="fill_parent"
+        android:layout_gravity="top"
+        android:background="@color/orange">
 
-        <com.app.mark.drawables.DrawableSurfaceView
-            android:id="@+id/drawable_surface"
-            android:layout_width="600dp"
-            android:layout_height="fill_parent" />
+        <!--Dynamic Content Layout-->
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.8">
 
-        <ListView
-            android:id="@+id/comm_view"
-            android:background="@color/colorPrimaryDark"
-            android:layout_width="350dp"
-            android:layout_height="fill_parent"
-            android:layout_centerInParent="true"
-            android:layout_gravity="end"
-            android:layout_weight="2"
-            android:cacheColorHint="#000000"
-            android:divider="#000000"
-            android:dividerHeight="0dp"
-            android:drawSelectorOnTop="false"
-            android:focusableInTouchMode="false"
-            android:footerDividersEnabled="false"
-            android:headerDividersEnabled="false"
-            android:listSelector="@android:color/transparent" />
+            <!--DrawableSurfaceView-->
+            <com.app.mark.drawables.DrawableSurfaceView
+                android:id="@+id/drawable_surface"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent" />
+            <!--Add Gauge Buttons-->
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:orientation="horizontal">
+                <Button
+                    android:id="@+id/gauge_1_button"
+                    android:layout_gravity="center_vertical"
+                    android:layout_width="fill_parent"
+                    android:layout_height="75dp"
+                    android:layout_weight="33.33"
+                    android:text="+" />
+                <Button
+                    android:id="@+id/gauge_2_button"
+                    android:layout_gravity="center_vertical"
+                    android:layout_width="fill_parent"
+                    android:layout_height="75dp"
+                    android:layout_weight="33.33"
+                    android:text="+" />
+                <Button
+                    android:id="@+id/gauge_3_button"
+                    android:layout_gravity="center_vertical"
+                    android:layout_width="fill_parent"
+                    android:layout_height="75dp"
+                    android:layout_weight="33.33"
+                    android:text="+" />
+            </LinearLayout>
+            <ListView
+                android:id="@+id/comm_view"
+                android:layout_width="350dp"
+                android:layout_height="fill_parent"
+                android:layout_centerInParent="true"
+                android:layout_gravity="end"
+                android:layout_weight="2"
+                android:background="@color/colorPrimaryDark"
+                android:cacheColorHint="#000000"
+                android:divider="#000000"
+                android:dividerHeight="0dp"
+                android:drawSelectorOnTop="false"
+                android:focusableInTouchMode="false"
+                android:footerDividersEnabled="false"
+                android:headerDividersEnabled="false"
+                android:listSelector="@android:color/transparent" />
 
-        <ListView
-            android:id="@+id/pid_view"
-            android:layout_width="260dp"
-            android:layout_height="fill_parent"
-            android:layout_gravity="end"
-            android:layout_toRightOf="@id/drawable_surface" />
+            <ListView
+                android:id="@+id/pid_view"
+                android:layout_width="260dp"
+                android:layout_height="fill_parent"
+                android:layout_gravity="end" />
+        </RelativeLayout>
 
-    </RelativeLayout>
+        <!--Mode Button Layout-->
 
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/mode_1_button"
+                android:layout_gravity="center_vertical"
+                android:layout_width="fill_parent"
+                android:layout_height="75dp"
+                android:layout_weight="33.33"
+                android:text="MODE 1" />
+            <Button
+                android:id="@+id/mode_2_button"
+                android:layout_gravity="center_vertical"
+                android:layout_width="fill_parent"
+                android:layout_height="75dp"
+                android:layout_weight="33.33"
+                android:text="MODE 2" />
+            <Button
+                android:id="@+id/mode_3_button"
+                android:layout_gravity="center_vertical"
+                android:layout_width="fill_parent"
+                android:layout_height="75dp"
+                android:layout_weight="33.33"
+                android:text="MODE 3" />
+        </LinearLayout>
+
+    </LinearLayout>
 
 </FrameLayout>
 

@@ -181,7 +181,7 @@ public class MainActivity extends Activity {
          * Buttons
          * **********************************************/
         // Toggle Log Button
-        Button toggleLogButton = (Button) findViewById(R.id.toggle_log_button);
+        Button toggleLogButton = (Button) findViewById(R.id.mode_3_button);
         toggleLogButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
