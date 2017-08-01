@@ -4,10 +4,15 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.widget.ViewDragHelper;
+import android.text.Layout;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.animation.LinearInterpolator;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -15,7 +20,14 @@ import java.util.ArrayList;
 import java.util.Set;
 
 import android.os.Message;
+import android.widget.GridLayout;
+import android.widget.GridView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.TableLayout;
+import android.widget.TableRow;
+
+import static android.view.Gravity.CENTER;
 
 public class MainActivity extends Activity {
 
@@ -36,6 +48,14 @@ public class MainActivity extends Activity {
     ListView parameterListView;
     ArrayAdapter<String> parameterListAdapter;
     ArrayList<String> parameterListItems = new ArrayList<String>();
+
+    // Grid of buttons
+    final int numRows = 3;
+    final int numCols = 3;
+
+    final int[][] buttonIds = new int[numCols][numRows];
+    LinearLayout[][] grid = new LinearLayout[numCols][numRows];
+
 
     // Message handler: receives all messages coming into the main activity
     public Handler mHandler = new Handler(){   //handles the INcoming msgs
@@ -137,6 +157,57 @@ public class MainActivity extends Activity {
         mELM327 = new ELM327(this, mHandler, drawableHandler);
         mELM327.start();
 
+        /* **********************************************
+         * Dashboard Buttons setup
+         * **********************************************/
+        LinearLayout linearLayout = (LinearLayout) findViewById(R.id.dashboard_content);
+        //LinearLayout linearLayout = new LinearLayout(this);
+        linearLayout.setOrientation(LinearLayout.VERTICAL);
+        //linearLayout.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
+
+        TableLayout tableLayout = new TableLayout(this);
+        tableLayout.setStretchAllColumns(true);
+        tableLayout.setLayoutParams(new TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT, TableLayout.LayoutParams.MATCH_PARENT));
+
+
+        tableLayout.setWeightSum(numRows);
+
+
+
+        for (int i = 0; i < numRows; i++) {
+            TableRow tableRow = new TableRow(this);
+            tableRow.setLayoutParams(new TableLayout.LayoutParams(
+                    TableLayout.LayoutParams.MATCH_PARENT,
+                    TableLayout.LayoutParams.MATCH_PARENT, 1.0f));
+
+            for (int j = 0; j < numCols; j++) {
+
+                grid[j][i] = new LinearLayout(this);
+
+                grid[j][i].setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT));
+
+                final Button b = new Button(this);
+                b.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT));
+                b.setId(View.generateViewId());
+                buttonIds[j][i] = b.getId();
+                b.setText("Posn. " + j + ", " + i);
+
+                b.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        b.setText("PRESSED");
+                        deleteButton(b.getId());
+                    }
+                });
+
+                grid[j][i].addView(b);
+                tableRow.addView(grid[j][i]);
+            }
+            tableLayout.addView(tableRow);
+        }
+
+        linearLayout.addView(tableLayout);
+
 
         /* **********************************************
          * Communication Logging
@@ -156,7 +227,7 @@ public class MainActivity extends Activity {
          ***********************************************/
         // ListView containing supported PIDs - default visible
         parameterListView = (ListView) findViewById(R.id.pid_view);
-        parameterListView.setVisibility(View.VISIBLE);
+        parameterListView.setVisibility(View.INVISIBLE);
         // Listview header - needs to be view, also before adapter
         View pidListHeaderView  = View.inflate(this, R.layout.pid_list_header, null);
         parameterListView.addHeaderView(pidListHeaderView);
@@ -189,6 +260,20 @@ public class MainActivity extends Activity {
             }
         });
     }
+
+    void deleteButton(int id)
+    {
+        for(int i = 0; i < numRows; i++) {
+            for (int j = 0; j < numCols; j++) {
+                if (buttonIds[j][i] == id) {
+                    Button b = (Button) grid[j][i].findViewById(id);
+                    grid[j][i].removeView(b);
+                }
+            }
+        }
+
+    }
+
 
     /***********************************************
      * COMMUNICATION: Messages to ELM327
