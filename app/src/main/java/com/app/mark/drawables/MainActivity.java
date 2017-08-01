@@ -171,23 +171,25 @@ public class MainActivity extends Activity {
 
 
         tableLayout.setWeightSum(numRows);
-
-
+        tableLayout.setStretchAllColumns(false);
+        tableLayout.setShrinkAllColumns(false);
 
         for (int i = 0; i < numRows; i++) {
             TableRow tableRow = new TableRow(this);
+            tableRow.setWeightSum(numCols);
             tableRow.setLayoutParams(new TableLayout.LayoutParams(
                     TableLayout.LayoutParams.MATCH_PARENT,
                     TableLayout.LayoutParams.MATCH_PARENT, 1.0f));
 
             for (int j = 0; j < numCols; j++) {
-
                 grid[j][i] = new LinearLayout(this);
 
-                grid[j][i].setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT));
+
+                grid[j][i].setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT, 1.0f));
 
                 final Button b = new Button(this);
-                b.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT));
+                b.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT, 1.0f));
+                b.setWidth(0);
                 b.setId(View.generateViewId());
                 buttonIds[j][i] = b.getId();
                 b.setText("Posn. " + j + ", " + i);
@@ -268,6 +270,12 @@ public class MainActivity extends Activity {
                 if (buttonIds[j][i] == id) {
                     Button b = (Button) grid[j][i].findViewById(id);
                     grid[j][i].removeView(b);
+                    Button c = new Button(this);
+                    c.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT, 1.0f));
+                    c.setText("NEW BUTTON!!!");
+                    c.setId(id);
+                    c.setWidth(0);
+                    grid[j][i].addView(c);
                 }
             }
         }
