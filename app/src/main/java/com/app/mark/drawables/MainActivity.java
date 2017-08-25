@@ -4,12 +4,14 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.widget.ViewDragHelper;
 import android.text.Layout;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.LinearInterpolator;
@@ -54,6 +56,7 @@ public class MainActivity extends Activity {
     final int numCols = 3;
 
     final int[][] buttonIds = new int[numCols][numRows];
+    final String[][] parameterIDs = new String[numCols][numRows];
     LinearLayout[][] grid = new LinearLayout[numCols][numRows];
 
 
@@ -174,6 +177,7 @@ public class MainActivity extends Activity {
         tableLayout.setStretchAllColumns(false);
         tableLayout.setShrinkAllColumns(false);
 
+
         for (int i = 0; i < numRows; i++) {
             TableRow tableRow = new TableRow(this);
             tableRow.setWeightSum(numCols);
@@ -192,17 +196,32 @@ public class MainActivity extends Activity {
                 b.setWidth(0);
                 b.setId(View.generateViewId());
                 buttonIds[j][i] = b.getId();
-                b.setText("Posn. " + j + ", " + i);
+                b.setText("(+)");
 
                 b.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        b.setText("PRESSED");
-                        deleteButton(b.getId());
+                        b.setText("SELECTED");
+                        parameterListView.setVisibility(View.VISIBLE);
+                        parameterListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                            @Override
+                            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                                String name = parameterListAdapter.getItem(position-1);
+                                Log.d("MA", "Selected Parameter: " + name);
+                                //sendRequestDataCmd(name);
+                                //sendAddCmd(DrawableSurfaceView.VIEW_OBJ_TYPE.READOUT, name);
+                                b.setText("999.99\n"+name);
+                                parameterListView.setVisibility(View.INVISIBLE);
+                            }
+                        });
+                        //deleteButton(b.getId());
                     }
                 });
 
-                grid[j][i].addView(b);
+                //grid[j][i].addView(b);
+                LayoutInflater buttonInflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                grid[j][i].addView(buttonInflater.inflate(R.layout.readout_item,tableLayout, false));
+
                 tableRow.addView(grid[j][i]);
             }
             tableLayout.addView(tableRow);
@@ -237,16 +256,6 @@ public class MainActivity extends Activity {
         parameterListAdapter = new ArrayAdapter<String>(this, R.layout.pid_list_item, R.id.pid_list_item_text, parameterListItems);
         parameterListView.setAdapter(parameterListAdapter);
 
-        parameterListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String name = parameterListAdapter.getItem(position-1);
-                Log.d("MA", "Selected Parameter: " + name);
-                sendRequestDataCmd(name);
-                sendAddCmd(DrawableSurfaceView.VIEW_OBJ_TYPE.READOUT, name);
-            }
-        });
-
         // Call connect method automatically on startup (bluetooth, elm, ecu...)
         connect();
 
@@ -263,8 +272,7 @@ public class MainActivity extends Activity {
         });
     }
 
-    void deleteButton(int id)
-    {
+    void deleteButton(int id) {
         for(int i = 0; i < numRows; i++) {
             for (int j = 0; j < numCols; j++) {
                 if (buttonIds[j][i] == id) {
@@ -279,7 +287,6 @@ public class MainActivity extends Activity {
                 }
             }
         }
-
     }
 
 
@@ -379,6 +386,7 @@ public class MainActivity extends Activity {
         resetBundle.putSerializable("CMD", DrawableSurfaceView.VIEW_CMD_TYPE.RESET);
         mDrawableThread.getHandler().sendMessage(msg);
     }
+
 
     /***********************************************
      * Views and controls
