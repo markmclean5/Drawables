@@ -59,7 +59,6 @@ public class MainActivity extends Activity {
     final String[][] parameterIDs = new String[numCols][numRows];
     LinearLayout[][] grid = new LinearLayout[numCols][numRows];
 
-
     // Message handler: receives all messages coming into the main activity
     public Handler mHandler = new Handler(){   //handles the INcoming msgs
         @Override public void handleMessage(Message msg)
@@ -168,7 +167,7 @@ public class MainActivity extends Activity {
         linearLayout.setOrientation(LinearLayout.VERTICAL);
         //linearLayout.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
 
-        TableLayout tableLayout = new TableLayout(this);
+        final TableLayout tableLayout = new TableLayout(this);
         tableLayout.setStretchAllColumns(true);
         tableLayout.setLayoutParams(new TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT, TableLayout.LayoutParams.MATCH_PARENT));
 
@@ -194,6 +193,7 @@ public class MainActivity extends Activity {
                 final Button b = new Button(this);
                 b.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT, 1.0f));
                 b.setWidth(0);
+
                 b.setId(View.generateViewId());
                 buttonIds[j][i] = b.getId();
                 b.setText("(+)");
@@ -210,17 +210,17 @@ public class MainActivity extends Activity {
                                 Log.d("MA", "Selected Parameter: " + name);
                                 //sendRequestDataCmd(name);
                                 //sendAddCmd(DrawableSurfaceView.VIEW_OBJ_TYPE.READOUT, name);
-                                b.setText("999.99\n"+name);
+                               // b.setText("999.99\n"+name);
                                 parameterListView.setVisibility(View.INVISIBLE);
+                                addReadout(b.getId(),name, tableLayout);
                             }
                         });
-                        //deleteButton(b.getId());
+
                     }
                 });
 
-                //grid[j][i].addView(b);
-                LayoutInflater buttonInflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                grid[j][i].addView(buttonInflater.inflate(R.layout.readout_item,tableLayout, false));
+                grid[j][i].addView(b);
+
 
                 tableRow.addView(grid[j][i]);
             }
@@ -272,18 +272,25 @@ public class MainActivity extends Activity {
         });
     }
 
-    void deleteButton(int id) {
+    void addReadout(int id, String name, TableLayout tableLayout) {
         for(int i = 0; i < numRows; i++) {
             for (int j = 0; j < numCols; j++) {
                 if (buttonIds[j][i] == id) {
                     Button b = (Button) grid[j][i].findViewById(id);
+                    int w = b.getWidth();
+                    int h = b.getHeight();
                     grid[j][i].removeView(b);
-                    Button c = new Button(this);
-                    c.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT, 1.0f));
-                    c.setText("NEW BUTTON!!!");
-                    c.setId(id);
-                    c.setWidth(0);
-                    grid[j][i].addView(c);
+                    LayoutInflater buttonInflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                    View readoutView = buttonInflater.inflate(R.layout.readout_item, tableLayout, false);
+                    readoutView.setLayoutParams(new TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT, TableLayout.LayoutParams.MATCH_PARENT, 0.7f));
+
+                    grid[j][i].removeAllViews();
+                    grid[j][i].addView(readoutView);
+                    //grid[j][i].addView(readoutView);
+                    grid[j][i].setPadding(0,0,0,0);
+
+
+                    //grid[j][i].addView(c);
                 }
             }
         }

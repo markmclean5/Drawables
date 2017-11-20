@@ -10,7 +10,8 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:layout_gravity="top"
-        android:background="@color/orange">
+        android:background="@color/orange"
+        android:gravity="center_horizontal">
 
         <!--Dynamic Content Layout-->
         <RelativeLayout
@@ -51,11 +52,13 @@
                 android:visibility="invisible"/>
 
             <ListView
+                android:layout_centerHorizontal="true"
                 android:id="@+id/pid_view"
-                android:layout_width="260dp"
+                android:layout_width="300dp"
                 android:layout_height="fill_parent"
-                android:layout_gravity="end"
-                android:visibility="invisible"/>
+                android:layout_gravity="center_horizontal"
+                android:visibility="invisible"
+                android:background="@color/black"/>
         </RelativeLayout>
 
         <!--Mode Button Layout-->
